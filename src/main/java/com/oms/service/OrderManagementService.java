@@ -14,7 +14,21 @@ public class OrderManagementService {
     private final ResponseMapper responseMapper;
 
     @Transactional
-    public CustomerDetailsPojo saveNewOrderDetails(CustomerDetailsPojo customerDetails) {
-       return responseMapper.customerDetailsPojoMapper(customerDetailsRepository.save(responseMapper.customerDetailsEntityMapper(customerDetails)));
+    public CustomerDetailsPojo saveNewOrderDetails(CustomerDetailsPojo customerDetails) throws Exception {
+        if (customerDetails.getId() != null) {
+            throw new Exception("To save id should be empty.");
+        } else {
+            return responseMapper.customerDetailsPojoMapper(customerDetailsRepository.save(responseMapper.customerDetailsEntityMapper(customerDetails)));
+        }
+    }
+
+    @Transactional
+    public CustomerDetailsPojo updateOrderDetails(CustomerDetailsPojo customerDetails) throws Exception {
+        if (customerDetails.getId() == null) {
+            throw new Exception("ID should not be empty.");
+        } else {
+            return responseMapper.customerDetailsPojoMapper(customerDetailsRepository.save(responseMapper.customerDetailsEntityMapper(customerDetails)));
+        }
+
     }
 }
