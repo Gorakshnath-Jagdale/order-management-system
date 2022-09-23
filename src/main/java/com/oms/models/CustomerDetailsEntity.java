@@ -15,30 +15,31 @@ import java.util.List;
 @Table(schema = "OMS", name = "CUSTOMER_DETAILS")
 public class CustomerDetailsEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CUSTOMER_ID", nullable = false)
     private Long id;
-    @Column(name = "CUSTOMER_NAME", nullable = false)
+    @Column(name = "CUSTOMER_NAME")
     private String customerName;
-    @Column(name = "CUSTOMER_EMAIL", nullable = false)
+    @Column(name = "CUSTOMER_EMAIL")
     private String customerEmail;
-    @Column(name = "CUSTOMER_ADDRESS", nullable = false)
+    @Column(name = "CUSTOMER_ADDRESS")
     private String customerAddress;
-    @Column(name = "CREATED_BY", nullable = false)
+    @Column(name = "CREATED_BY")
     private String createdBy;
 
-    @Column(name = "CREATED_DATE", nullable = false)
+    @Column(name = "CREATED_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
 
-    @Column(name = "MODIFIED_BY", nullable = false)
+    @Column(name = "MODIFIED_BY")
     private String modifiedBy;
 
-    @Column(name = "MODIFIED_DATE", nullable = false)
+    @Column(name = "MODIFIED_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedDate;
 
-    @OneToMany(mappedBy = "customerId")
+    @OneToMany(targetEntity = OrderManagerEntity.class,cascade = CascadeType.PERSIST)
+   @JoinColumn(name = "CUSTOMER_ID",referencedColumnName = "CUSTOMER_ID")
     private List<OrderManagerEntity> customerOrders;
 }
 

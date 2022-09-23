@@ -6,6 +6,9 @@ import com.oms.pojo.UserDetailsPojo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class UserManagementService {
@@ -24,22 +27,18 @@ public class UserManagementService {
     }
 
     public String deleteUserDetails(Long userId) {
-        if(userDetailsRepository.existsById(userId))
-        {
+        if (userDetailsRepository.existsById(userId)) {
             //Delete user operation
             userDetailsRepository.deleteById(userId);
-            return userId+" User deleted ";
+            return userId + " User deleted ";
 
-        }
-        else
-        {
+        } else {
             return "User Not Exist";
         }
 
     }
 
-    public String updateUserDetails(UserDetailsPojo user)
-    {
+    public String updateUserDetails(UserDetailsPojo user) {
         if (userDetailsRepository.existsById(user.getId())) {
             var updatingUser = new UserDetailsEntity();
             updatingUser.setUserName(user.getUserName());
@@ -47,12 +46,34 @@ public class UserManagementService {
             updatingUser.setUserPass(user.getUserPass());
             updatingUser.setLoginId(user.getLoginId());
             updatingUser.setContactNumber(user.getContactNumber());
-            updatingUser.setActiveUser(true);
+            updatingUser.setActiveUser(user.isActiveUser());
             var savedUser = userDetailsRepository.save(updatingUser);
             return savedUser.getUserName() + " Save with Login Id -" + savedUser.getLoginId() + " User Id generated is :" + savedUser.getId();
-        }
-        else {
+        } else {
             return "Does Not Exist";
         }
 
-}}
+    }
+
+    public List<UserDetailsPojo> getAllUsers() {
+        return userDetailsRepository.findAll().stream().map(this::userDetailsMapper).collect(Collectors.toList());
+    }
+
+
+    public UserDetailsPojo userDetailsMapper(UserDetailsEntity userDetailsEntity) {
+
+        var updatingUser = new UserDetailsPojo();
+        updatingUser.setUserName(userDetailsEntity.getUserName());
+        updatingUser.setId(userDetailsEntity.getId());
+        updatingUser.setUserPass(userDetailsEntity.getUserPass());
+        updatingUser.setLoginId(userDetailsEntity.getLoginId());
+        updatingUser.setContactNumber(userDetailsEntity.getContactNumber());
+        updatingUser.setActiveUser(userDetailsEntity.isActiveUser());
+        return updatingUser;
+    }
+
+    public UserDetailsPojo getUser(Long userId) throws Exception {
+        var user = userDetailsRepository.findById(userId).orElseThrow(Exception::new);
+        return userDetailsMapper(user);
+    }
+}
