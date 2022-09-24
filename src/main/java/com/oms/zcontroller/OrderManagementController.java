@@ -45,13 +45,13 @@ public class OrderManagementController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping(value = "/getExcel",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Resource> getExcel(@RequestBody CustomerDetailsPojo customerDetails) {
+    @PostMapping(value = "/getAllOrdersByCustomerName",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Resource> getAllOrdersByCustomerName(@RequestBody CustomerDetailsPojo customerDetails) {
         var response = new ResponseStructure<CustomerDetailsPojo>();
         String filename = "tutorials.xlsx";
 
         try{
-            InputStreamResource file = new InputStreamResource(orderManagementService.test(customerDetails));
+            InputStreamResource file = new InputStreamResource(orderManagementService.getAllOrdersByCustomerName(customerDetails));
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
