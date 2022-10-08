@@ -1,6 +1,5 @@
 package com.oms.pojo;
 
-import com.oms.models.ProductOrderManagerEntity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,22 +10,18 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class CustomerDetailsPojo {
+public class CustomerDetailsResponsePojo {
 
     private Long id;
     private String customerName;
     private String customerEmail;
     private String customerAddress;
     private String customerContact;
-    private String createdBy;
-    private Date createdDate;
-    private String modifiedBy;
-    private Date modifiedDate;
     private Date poDate;
     private String poStatus;
     private String poNumber;
     private float TotalAmount;
-    private List<ProductOrderManagerEntity> customerOrders;
+    private List<ProductOrderManagerPojo> customerOrders;
 }
 
 

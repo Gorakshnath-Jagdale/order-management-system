@@ -1,8 +1,8 @@
 package com.oms.zcontroller;
 
 import com.oms.execeptions.OMSError;
-import com.oms.pojo.CustomerDetailsPojo;
-import com.oms.pojo.ResponseStructure;
+import com.oms.pojo.*;
+import com.oms.pojo.requestPojo.GetOrdersByCustomerAndPONumberRequest;
 import com.oms.service.OrderManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
@@ -11,25 +11,28 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/api/order")
 @RequiredArgsConstructor
-public class OrderManagementController {
+@CrossOrigin
+public class OrderManagementController implements IntOrderManagementController {
 
     private final OrderManagementService orderManagementService;
 
     @PostMapping(value = "/saveOrder",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "http://localhost:4200/")
     public ResponseEntity<ResponseStructure<CustomerDetailsPojo>> saveNewOrderDetails(@RequestBody CustomerDetailsPojo customerDetails) {
         var response = new ResponseStructure<CustomerDetailsPojo>();
         try{
-            response.setResult(orderManagementService.updateOrderDetails(customerDetails));
+            response.setResult(orderManagementService.saveNewOrderDetails(customerDetails));
+            response.setError(new OMSError("",""));
         }catch (Exception e)
         {
-            response.setError(new OMSError("WENT-WRONG",e.getMessage()));
+            response.setError(new OMSError("WENT-WRONG",String.valueOf(e)));
         }
         return ResponseEntity.ok(response);
     }
@@ -66,5 +69,85 @@ public class OrderManagementController {
     }
 
 
+    @Override
+    @PostMapping(value = "/getAllOrderWithFilter",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseStructure<List<OrderDetailsResponse>>> getAllOrderWithFilter(GetALLOrderFiltersRequest request) {
+        var response = new ResponseStructure<List<OrderDetailsResponse>>();
+        try{
+            response.setResult(orderManagementService.getAllOrderWithFilter(request));
+        }catch (Exception e)
+        {
+            response.setError(new OMSError("WENT-WRONG",e.getMessage()));
+        }
+        return ResponseEntity.ok(response);
+    }
 
+    @Override
+    @GetMapping(value = "/getAllOrder",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseStructure<List<OrderDetailsResponse>>> getAllOrder() {
+
+        var response = new ResponseStructure<List<OrderDetailsResponse>>();
+        try{response.setResult(orderManagementService.getAllOrder());
+        }catch (Exception e)
+        {
+            response.setError(new OMSError("WENT-WRONG",e.getMessage()));
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @GetMapping(value = "/getAllCustomers",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseStructure<List<Customers>>> getAllCustomers() {
+        var response = new ResponseStructure<List<Customers>>();
+        try{response.setResult(orderManagementService.getAllCustomers());
+        }catch (Exception e)
+        {
+            response.setError(new OMSError("WENT-WRONG",e.getMessage()));
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @PostMapping(
+            value = "/getPODetails",
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseStructure<CustomerDetailsResponsePojo>> getAllOrderByCustomerIdAndPONumber(@RequestBody GetOrdersByCustomerAndPONumberRequest request) {
+        var response = new ResponseStructure<CustomerDetailsResponsePojo>();
+        try{response.setResult(orderManagementService.getAllOrderByCustomerIdAndPONumber(request));
+        }catch (Exception e)
+        {
+            response.setError(new OMSError("WENT-WRONG",e.getMessage()));
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @GetMapping(value = "/getAllItemsList",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseStructure<List<ProductDetails>>> getAllProducts() {
+        var response = new ResponseStructure<List<ProductDetails>>();
+        try{response.setResult(orderManagementService.getAllProducts());
+        }catch (Exception e)
+        {
+            response.setError(new OMSError("WENT-WRONG",e.getMessage()));
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @GetMapping(value = "/getPOList",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseStructure<List<PODetails>>> getAllPOList() {
+        var response = new ResponseStructure<List<PODetails>>();
+        try{response.setResult(orderManagementService.getAllPOList());
+        }catch (Exception e)
+        {
+            response.setError(new OMSError("WENT-WRONG",e.getMessage()));
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ResponseStructure<List<PODetails>>> getPODetails(String poNumber) {
+        return null;
+    }
 }
+    

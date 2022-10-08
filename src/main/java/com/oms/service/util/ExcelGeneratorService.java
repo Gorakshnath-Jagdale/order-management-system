@@ -1,7 +1,6 @@
 package com.oms.service.util;
 
-import com.oms.models.OrderManagerEntity;
-import com.oms.pojo.CustomerDetailsPojo;
+import com.oms.pojo.OrderDetailsResponse;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -15,7 +14,8 @@ import java.util.List;
 
 @Component
 public class ExcelGeneratorService {
-    public ByteArrayInputStream getOrderDetailsExcel(List<OrderManagerEntity> orderManagerEntities,boolean isSingleCustomer) throws IOException {
+
+    public ByteArrayInputStream getOrderDetailsExcel(List<OrderDetailsResponse> orderManagerEntities, boolean isSingleCustomer) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("SHEET");
 
@@ -34,7 +34,7 @@ public class ExcelGeneratorService {
         {
             sheet.addMergedRegion(new CellRangeAddress(0,1,0,12));
             sheet.addMergedRegion(new CellRangeAddress(0,1,13,19));
-            powerHeaderRowOne.createCell(0).setCellValue(orderManagerEntities.get(0).getCustomerDetails().getCustomerName());
+            powerHeaderRowOne.createCell(0).setCellValue(orderManagerEntities.get(0).getCustomerName());
             powerHeaderRowOne.createCell(13).setCellValue("Electronika Feedback");
             powerHeaderRowOne.getCell(0).setCellStyle(getCellStyle(1,style));
             powerHeaderRowOne.getCell(13).setCellStyle(getCellStyle(2,style2));
@@ -83,13 +83,13 @@ public class ExcelGeneratorService {
             }
 
         }
-        for (OrderManagerEntity order : orderManagerEntities) {
+        for (var order : orderManagerEntities) {
             Row row = sheet.createRow(rowIdx++);
             int rowCounter = 1;
             row.createCell(0).setCellValue(++rowCounter);
             row.createCell(1).setCellValue(order.getPoNumber().toString());
             row.createCell(2).setCellValue(order.getPoDate().toString());
-            row.createCell(3).setCellValue(order.getCustomerDetails().getCustomerName());
+            row.createCell(3).setCellValue(order.getCustomerName());
             row.createCell(4).setCellValue(order.getCustomerPartNo().toString());
             row.createCell(5).setCellValue(order.getMfgItemNo());
             row.createCell(6).setCellValue(order.getItemDetails());

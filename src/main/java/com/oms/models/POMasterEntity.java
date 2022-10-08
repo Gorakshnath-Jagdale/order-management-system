@@ -10,24 +10,27 @@ import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 
-@Entity
 @Getter
 @Setter
-@Table(schema = "OMS", name = "CUSTOMER_DETAILS")
-public class CustomerDetailsEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CUSTOMER_ID", nullable = false)
-    private Long id;
-    @Column(name = "CUSTOMER_NAME")
-    private String customerName;
-    @Column(name = "CUSTOMER_EMAIL")
-    private String customerEmail;
-    @Column(name = "CUSTOMER_ADDRESS")
-    private String customerAddress;
+@Entity
+@Table(schema = "oms", name = "PO_MASTER")
+public class POMasterEntity {
 
-    @Column(name = "CUSTOMER_CONTACT")
-    private String customerContact;
+    @Id
+    @Column(name = "PO_NUMBER", nullable = false)
+    private String poNumber;
+
+    @Column(name = "PO_DATE", nullable = false)
+    private Date poDate;
+
+    @Column(name = "CUSTOMER_ID", nullable = false)
+    private Long customerId;
+
+    @Column(name = "PO_STATUS", nullable = false)
+    private String orderStatus;
+
+    @Column(name = "TOTAL_AMOUNT", nullable = false)
+    private float totalAmount;
 
     @Column(name = "CREATED_BY")
     private String createdBy;
@@ -44,16 +47,11 @@ public class CustomerDetailsEntity {
     @Column(name = "MODIFIED_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedDate;
-
-    @JsonBackReference
-    @OneToMany(targetEntity = ProductOrderManagerEntity.class,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
-   @JoinColumn(name = "CUSTOMER_ID",referencedColumnName = "CUSTOMER_ID")
-    private List<ProductOrderManagerEntity> customerOrders;
-
-//    @JsonBackReference(value = "test2")
 //    @OneToMany(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "CUSTOMER_ID",referencedColumnName = "CUSTOMER_ID",insertable = false, updatable = false)
-//    private List<ProductShipmentManagerEntity> productShipments;
+//    @JoinColumn(name = "PO_NUMBER",insertable = false, updatable = false)
+//    @JsonBackReference(value = "test")
+//    private List<ProductOrderManagerEntity> productOrderManagerEntity;
+
 
     @PreUpdate
     public void setModifiedDateCurrent() {
@@ -64,5 +62,3 @@ public class CustomerDetailsEntity {
         this.createdDate =  new Date();
     }
 }
-
-
