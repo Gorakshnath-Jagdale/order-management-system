@@ -18,14 +18,10 @@ public class CustomerDetailsPojo {
     private String customerEmail;
     private String customerAddress;
     private String customerContact;
-    private String createdBy;
-    private Date createdDate;
-    private String modifiedBy;
-    private Date modifiedDate;
     private Date poDate;
     private String poStatus;
     private String poNumber;
-    private float TotalAmount;
+    private float totalAmount;
     private List<ProductOrderManagerEntity> customerOrders;
 }
 

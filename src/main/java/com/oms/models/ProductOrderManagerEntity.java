@@ -68,24 +68,23 @@ public class ProductOrderManagerEntity {
     @Column(name = "CUSTOMER_ID")
     private Long customerId;
 
-    @Column(name = "PRODUCT_ID",insertable = false, updatable = false)
+    @Column(name = "PRODUCT_ID")
     private Long productId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "CUSTOMER_ID",insertable = false, updatable = false)
     @JsonBackReference
     private CustomerDetailsEntity customerDetails;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "PRODUCT_ID")
-//    @JoinColumn(name = "PRODUCT_ID",insertable = false, updatable = false)
+    @ManyToOne  
+  @JoinColumn(name = "PRODUCT_ID",insertable = false, updatable = false)
     @JsonBackReference(value = "test1")
     private ProductDetailsEntity mfgItemNumber;
 
     @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true)
     @JoinColumn(name = "PRODUCT_ORDER_ID")
     @JsonBackReference(value = "test2")
-    private Set<ProductShipmentManagerEntity> productShipmentDetails;
+    private List<ProductShipmentManagerEntity> productShipmentDetails;
 
 
 

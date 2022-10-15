@@ -46,8 +46,8 @@ public class CustomerDetailsEntity {
     private Date modifiedDate;
 
     @JsonBackReference
-    @OneToMany(targetEntity = ProductOrderManagerEntity.class,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
-   @JoinColumn(name = "CUSTOMER_ID",referencedColumnName = "CUSTOMER_ID")
+    @OneToMany(mappedBy = "customerId",fetch = FetchType.EAGER, targetEntity = ProductOrderManagerEntity.class,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+//   @JoinColumn(name = "CUSTOMER_ID",referencedColumnName = "CUSTOMER_ID")
     private List<ProductOrderManagerEntity> customerOrders;
 
 //    @JsonBackReference(value = "test2")

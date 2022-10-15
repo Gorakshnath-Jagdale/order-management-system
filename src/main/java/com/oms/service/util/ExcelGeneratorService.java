@@ -1,10 +1,13 @@
 package com.oms.service.util;
 
-import com.oms.pojo.OrderDetailsResponse;
+import com.oms.models.ProductOrderManagerEntity;
+import com.oms.models.ProductShipmentManagerEntity;
+import com.oms.pojo.Customers;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -15,7 +18,7 @@ import java.util.List;
 @Component
 public class ExcelGeneratorService {
 
-    public ByteArrayInputStream getOrderDetailsExcel(List<OrderDetailsResponse> orderManagerEntities, boolean isSingleCustomer) throws IOException {
+    public ByteArrayResource getOrderDetailsExcel(List<ProductShipmentManagerEntity>  shipmentManagerEntities,boolean isSingleCustomer) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("SHEET");
 
@@ -34,7 +37,7 @@ public class ExcelGeneratorService {
         {
             sheet.addMergedRegion(new CellRangeAddress(0,1,0,12));
             sheet.addMergedRegion(new CellRangeAddress(0,1,13,19));
-            powerHeaderRowOne.createCell(0).setCellValue(orderManagerEntities.get(0).getCustomerName());
+            powerHeaderRowOne.createCell(0).setCellValue(shipmentManagerEntities.get(0).getCustomerDetails().getCustomerName());
             powerHeaderRowOne.createCell(13).setCellValue("Electronika Feedback");
             powerHeaderRowOne.getCell(0).setCellStyle(getCellStyle(1,style));
             powerHeaderRowOne.getCell(13).setCellStyle(getCellStyle(2,style2));
@@ -83,28 +86,28 @@ public class ExcelGeneratorService {
             }
 
         }
-        for (var order : orderManagerEntities) {
+        for (var order : shipmentManagerEntities) {
             Row row = sheet.createRow(rowIdx++);
             int rowCounter = 1;
             row.createCell(0).setCellValue(++rowCounter);
-            row.createCell(1).setCellValue(order.getPoNumber().toString());
-            row.createCell(2).setCellValue(order.getPoDate().toString());
-            row.createCell(3).setCellValue(order.getCustomerName());
-            row.createCell(4).setCellValue(order.getCustomerPartNo().toString());
-            row.createCell(5).setCellValue(order.getMfgItemNo());
-            row.createCell(6).setCellValue(order.getItemDetails());
-            row.createCell(7).setCellValue(order.getMaker());
-            row.createCell(8).setCellValue(order.getPrice());
-            row.createCell(9).setCellValue(order.getPoQuantity());
-            row.createCell(10).setCellValue(order.getCustomerRequestedDate().toString());
-            row.createCell(11).setCellValue(order.getSuppliedQty());
+            row.createCell(1).setCellValue(order.getProductOrderManagerEntity().getPoNumber().toString());
+            row.createCell(2).setCellValue(order.getProductOrderManagerEntity().getPoDate().toString());
+            row.createCell(3).setCellValue(order.getProductOrderManagerEntity().getCustomerDetails().getCustomerName());
+            row.createCell(4).setCellValue(order.getProductOrderManagerEntity().getCustomerItemNo());
+            row.createCell(5).setCellValue(order.getProductOrderManagerEntity().getMfgItemNumber().getMfgItemNumber());
+            row.createCell(6).setCellValue(order.getProductOrderManagerEntity().getMfgItemNumber().getProductDetails());
+            row.createCell(7).setCellValue(order.getProductOrderManagerEntity().getMfgItemNumber().getManufacturer());
+            row.createCell(8).setCellValue(order.getProductOrderManagerEntity().getPrice());
+            row.createCell(9).setCellValue(order.getProductOrderManagerEntity().getPoQuantity());
+            row.createCell(10).setCellValue(order.getCustomerRequestedDate()==null?"":order.getCustomerRequestedDate().toString());
+            row.createCell(11).setCellValue(order.getProductOrderManagerEntity().getSuppliedQty());
             row.createCell(12).setCellValue(order.getPendingQty());
-            row.createCell(13).setCellValue(order.getESPL_PO_OR_EBIS_NO());
-            row.createCell(14).setCellValue(order.getSupplierDeliveryDate().toString());
+            row.createCell(13).setCellValue(order.getEsplPO()==null?"":order.getEsplPO());
+            row.createCell(14).setCellValue(order.getSupplierDeliveryDate()==null?"":order.getSupplierDeliveryDate().toString());
             row.createCell(15).setCellValue(order.getInvoiceNo());
-            row.createCell(16).setCellValue(order.getEndCustomerBillDate().toString());
-            row.createCell(17).setCellValue(order.getPov());
-            row.createCell(18).setCellValue(order.getRemarks());
+            row.createCell(16).setCellValue("customer bill date");
+            row.createCell(17).setCellValue(order.getProductOrderManagerEntity().getPov());
+            row.createCell(18).setCellValue(order.getProductOrderManagerEntity().getRemarks());
             for (int i = 0; i < 19; i++) {
                 row.getCell(i).setCellStyle(getCellStyle(0, style5));
             }
@@ -114,7 +117,7 @@ public class ExcelGeneratorService {
         }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
-        return new ByteArrayInputStream(out.toByteArray());
+        return new ByteArrayResource(out.toByteArray());
     }
 
     private CellStyle getCellStyle(int styleNo,CellStyle style) {

@@ -7,11 +7,13 @@ import com.oms.pojo.ProductOrderManagerPojo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface getAllOrderByCustomerIdAndPONumberMapper {
 
     CustomerDetailsResponsePojo responseMapper(CustomerDetailsEntity customerDetails);
 
 
-    ProductOrderManagerPojo productOrderManagerEntityToProductOrderManagerPojo(ProductOrderManagerEntity productOrderManagerEntity);
+    List<ProductOrderManagerPojo> productOrderManagerEntityToProductOrderManagerPojoList(List<ProductOrderManagerEntity> productOrderManagerEntity);
 }

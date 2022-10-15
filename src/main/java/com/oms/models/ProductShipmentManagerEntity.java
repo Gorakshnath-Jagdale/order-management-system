@@ -21,10 +21,10 @@ public class ProductShipmentManagerEntity {
     private Long id;
     @Column(name = "PENDING_QTY", nullable = false)
     private Long pendingQty;
-    @Column(name = "ESPL_PO_OR_EBIS_NO", nullable = false)
+    @Column(name = "ESPL_PO_OR_EBIS_NO")
     private String esplPO;
 
-    @Column(name = "SUPPLIER_DELIVERY_DATE", nullable = false)
+    @Column(name = "SUPPLIER_DELIVERY_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date supplierDeliveryDate;
 
@@ -32,7 +32,7 @@ public class ProductShipmentManagerEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date customerRequestedDate;
 
-    @Column(name = "INVOICE_NO", nullable = false)
+    @Column(name = "INVOICE_NO")
     private String invoiceNo;
 
     @Column(name = "CREATED_BY")

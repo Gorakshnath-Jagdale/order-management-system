@@ -3,6 +3,7 @@ package com.oms.pojo;
 import com.oms.models.ProductDetailsEntity;
 import lombok.Data;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
 
@@ -10,7 +11,7 @@ import java.util.Set;
 @Data
 public class ProductOrderManagerPojo {
 
-    private Date poDate;
+    private String poDate;
     private Long customerId;
     private Long id;
     private Long productId;
@@ -26,4 +27,17 @@ public class ProductOrderManagerPojo {
     private float pov;//pending order value
     private float price;
     private float totalAmount;//pending order value
+
+    private String getMyDate(Date date) {
+        try {
+            return new SimpleDateFormat("dd/MM/yyyy").format(date);
+        } catch (Exception e) {
+            return date.toString();
+        }
+    }
+
+
+    public void setPoDate(Date poDate) {
+        this.poDate = getMyDate(poDate);
+    }
 }

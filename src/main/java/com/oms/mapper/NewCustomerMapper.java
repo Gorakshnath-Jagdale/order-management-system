@@ -12,12 +12,12 @@ import java.util.List;
 @Mapper(componentModel = "spring", imports = {Date.class})
 public interface NewCustomerMapper {
 
-    @Mapping(target = "createdBy",defaultValue = "Me")
+//    @Mapping(target = "createdBy",defaultValue = "Me")
 //     @Mapping(target = "createdDate",expression = "java(new Date())")
 //     @Mapping(target = "modifiedDate",expression = "java(new Date())")
     @Mapping(target = "createdDate",ignore = true)
     @Mapping(target = "modifiedDate",ignore = true)
-    @Mapping(target = "modifiedBy",defaultValue = "Me")
+//    @Mapping(target = "modifiedBy",defaultValue = "Me")
     @Mapping(target = "customerOrders" ,ignore = true)
     CustomerDetailsEntity customerDetailsEntityMapper(CustomerDetailsPojo customerDetails);
 

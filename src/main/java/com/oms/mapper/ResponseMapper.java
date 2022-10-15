@@ -4,7 +4,6 @@ import com.oms.models.CustomerDetailsEntity;
 import com.oms.models.ProductDetailsEntity;
 import com.oms.models.ProductOrderManagerEntity;
 import com.oms.pojo.CustomerDetailsPojo;
-import com.oms.pojo.OrderDetailsResponse;
 import com.oms.pojo.ProductDetails;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,12 +16,12 @@ public interface ResponseMapper {
 
      CustomerDetailsPojo customerDetailsPojoMapper(CustomerDetailsEntity customerDetails);
 
-     @Mapping(target = "createdBy",defaultValue = "Me")
+//     @Mapping(target = "createdBy",defaultValue = "Me")
 //     @Mapping(target = "createdDate",expression = "java(new Date())")
 //     @Mapping(target = "modifiedDate",expression = "java(new Date())")
           @Mapping(target = "createdDate",ignore = true)
      @Mapping(target = "modifiedDate",ignore = true)
-     @Mapping(target = "modifiedBy",defaultValue = "Me")
+//     @Mapping(target = "modifiedBy",defaultValue = "Me")
      @Mapping(target = "customerOrders" ,expression = "java(OrderManagerEntityMapper(customerDetails.getCustomerOrders()))")
     CustomerDetailsEntity customerDetailsEntityMapper(CustomerDetailsPojo customerDetails);
 
@@ -37,11 +36,11 @@ public interface ResponseMapper {
         return orderManagerEntities;
     }
 
-    List<OrderDetailsResponse> orderListMapper(List<ProductOrderManagerEntity> orderManagerEntities);
-
-    @Mapping(target = "customerId",source = "customerDetails.id")
-    @Mapping(target = "customerName",source = "customerDetails.customerName")
-    OrderDetailsResponse  orderMapper(ProductOrderManagerEntity orderManagerEntity);
+//    List<OrderDetailsResponse> orderListMapper(List<ProductOrderManagerEntity> orderManagerEntities);
+//
+//    @Mapping(target = "customerId",source = "customerDetails.id")
+//    @Mapping(target = "customerName",source = "customerDetails.customerName")
+//    OrderDetailsResponse  orderMapper(ProductOrderManagerEntity orderManagerEntity);
 
     List<ProductDetails> productDetailsMapper(List<ProductDetailsEntity> productDetailsList);
 }
