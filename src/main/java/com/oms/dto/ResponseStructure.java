@@ -1,4 +1,4 @@
-package com.oms.pojo;
+package com.oms.dto;
 
 import com.oms.execeptions.OMSError;
 import lombok.Getter;
@@ -10,5 +10,4 @@ public class ResponseStructure<T> {
 
     private T result;
     private OMSError error;
-    private String flag;
 }

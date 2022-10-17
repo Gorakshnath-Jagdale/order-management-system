@@ -37,7 +37,7 @@ public class ExcelGeneratorService {
         {
             sheet.addMergedRegion(new CellRangeAddress(0,1,0,12));
             sheet.addMergedRegion(new CellRangeAddress(0,1,13,19));
-            powerHeaderRowOne.createCell(0).setCellValue(shipmentManagerEntities.get(0).getCustomerDetails().getCustomerName());
+         //   powerHeaderRowOne.createCell(0).setCellValue(shipmentManagerEntities.get(0).getCustomerDetails().getCustomerName());
             powerHeaderRowOne.createCell(13).setCellValue("Electronika Feedback");
             powerHeaderRowOne.getCell(0).setCellStyle(getCellStyle(1,style));
             powerHeaderRowOne.getCell(13).setCellStyle(getCellStyle(2,style2));
@@ -90,18 +90,18 @@ public class ExcelGeneratorService {
             Row row = sheet.createRow(rowIdx++);
             int rowCounter = 1;
             row.createCell(0).setCellValue(++rowCounter);
-            row.createCell(1).setCellValue(order.getProductOrderManagerEntity().getPoNumber().toString());
+            row.createCell(1).setCellValue(order.getProductOrderManagerEntity().getPoMasterEntity().getPoNumber());
             row.createCell(2).setCellValue(order.getProductOrderManagerEntity().getPoDate().toString());
-            row.createCell(3).setCellValue(order.getProductOrderManagerEntity().getCustomerDetails().getCustomerName());
+          //  row.createCell(3).setCellValue(order.getProductOrderManagerEntity().getCustomerDetails().getCustomerName());
             row.createCell(4).setCellValue(order.getProductOrderManagerEntity().getCustomerItemNo());
-            row.createCell(5).setCellValue(order.getProductOrderManagerEntity().getMfgItemNumber().getMfgItemNumber());
-            row.createCell(6).setCellValue(order.getProductOrderManagerEntity().getMfgItemNumber().getProductDetails());
-            row.createCell(7).setCellValue(order.getProductOrderManagerEntity().getMfgItemNumber().getManufacturer());
+            row.createCell(5).setCellValue(order.getProductOrderManagerEntity().getProductDetails().getMfgItemNumber());
+            row.createCell(6).setCellValue(order.getProductOrderManagerEntity().getProductDetails().getProductDetails());
+            row.createCell(7).setCellValue(order.getProductOrderManagerEntity().getProductDetails().getManufacturer());
             row.createCell(8).setCellValue(order.getProductOrderManagerEntity().getPrice());
             row.createCell(9).setCellValue(order.getProductOrderManagerEntity().getPoQuantity());
             row.createCell(10).setCellValue(order.getCustomerRequestedDate()==null?"":order.getCustomerRequestedDate().toString());
-            row.createCell(11).setCellValue(order.getProductOrderManagerEntity().getSuppliedQty());
-            row.createCell(12).setCellValue(order.getPendingQty());
+          //  row.createCell(11).setCellValue(order.getProductOrderManagerEntity().getSuppliedQty());
+            row.createCell(12).setCellValue(order.getScheduleQty());
             row.createCell(13).setCellValue(order.getEsplPO()==null?"":order.getEsplPO());
             row.createCell(14).setCellValue(order.getSupplierDeliveryDate()==null?"":order.getSupplierDeliveryDate().toString());
             row.createCell(15).setCellValue(order.getInvoiceNo());

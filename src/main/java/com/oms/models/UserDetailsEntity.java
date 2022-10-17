@@ -10,7 +10,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@Table(schema = "OMS",name = "USER_DETAILS")
+@Table(schema = "OMS_ADVANCE",name = "USER_DETAILS")
 public class UserDetailsEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,6 +26,8 @@ private String contactNumber;
 private String userPass;
     @Column(name = "IS_ACTIVE_USER", nullable = false)
 private boolean activeUser;
+    @Column(name = "USER_LEVEL", nullable = false)
+private int userLevel;
 
     @Override
     public boolean equals(Object o) {

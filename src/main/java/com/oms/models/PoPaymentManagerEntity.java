@@ -8,36 +8,35 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
 @Entity
-@Table(schema = "OMS_ADVANCE", name = "PURCHESE_ORDER_MASTER")
-public class POMasterEntity {
+@Table(schema = "OMS_ADVANCE",name = "PO_PAYMENT_MANAGER")
+public class PoPaymentManagerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "PO_ID", nullable = false)
+    @Column(name = "PO_PAYMENT_ID", nullable = false)
     private Long id;
 
-    @Column(name = "PO_NUMBER", nullable = false)
-    private String poNumber;
+    @Column(name = "PO_ID", nullable = false)
+    private Long poId;
 
-    @Column(name = "PO_DATE", nullable = false)
-    private Date poDate;
-
-    @Column(name = "CUSTOMER_ID", nullable = false)
+    @Column(name = "CUSTOMER_ID")
     private Long customerId;
 
-    @Column(name = "PO_STATUS", nullable = false)
-    private String orderStatus;
+    @Column(name = "DUE_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dueDate;
 
-    @Column(name = "TOTAL_AMOUNT", nullable = false)
-    private float totalAmount;
+    @Column(name = "ORIGINAL_AMOUNT", nullable = false)
+    private float originalAmount;
+     @Column(name = "PAID_AMOUNT", nullable = false)
+    private float paidAmount;
 
-    @Column(name = "USER_LEVEL", nullable = false)
-    private int userLevel;
+    @Column(name = "DAYS_DUE", nullable = false)
+    private int daysDue;
 
     @Column(name = "CREATED_BY")
     private String createdBy;
@@ -55,16 +54,15 @@ public class POMasterEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedDate;
 
-    @OneToMany
-    @JoinColumn(name = "po_Id",insertable = false, updatable = false)
-    @JsonBackReference(value = "test")
-    private List<ProductOrderManagerEntity> productOrderManagerEntity;
-
     @ManyToOne
     @JoinColumn(name = "CUSTOMER_ID",insertable = false, updatable = false)
-    @JsonBackReference(value = "test2")
-    private CustomerDetailsEntity customerDetailsEntity;
+    @JsonBackReference
+    private CustomerDetailsEntity customerDetails;
 
+    @OneToOne
+    @JoinColumn(name = "PO_ID",insertable = false, updatable = false)
+    @JsonBackReference
+    private POMasterEntity poDetails;
 
     @PreUpdate
     public void setModifiedDateCurrent() {

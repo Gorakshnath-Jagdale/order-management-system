@@ -18,7 +18,7 @@ public interface NewCustomerMapper {
     @Mapping(target = "createdDate",ignore = true)
     @Mapping(target = "modifiedDate",ignore = true)
 //    @Mapping(target = "modifiedBy",defaultValue = "Me")
-    @Mapping(target = "customerOrders" ,ignore = true)
+  //  @Mapping(target = "customerOrders" ,ignore = true)
     CustomerDetailsEntity customerDetailsEntityMapper(CustomerDetailsPojo customerDetails);
 
     default List<ProductOrderManagerEntity> OrderManagerEntityMapper(CustomerDetailsPojo customerDetails){

@@ -22,7 +22,7 @@ public interface ResponseMapper {
           @Mapping(target = "createdDate",ignore = true)
      @Mapping(target = "modifiedDate",ignore = true)
 //     @Mapping(target = "modifiedBy",defaultValue = "Me")
-     @Mapping(target = "customerOrders" ,expression = "java(OrderManagerEntityMapper(customerDetails.getCustomerOrders()))")
+     //@Mapping(target = "customerOrders" ,expression = "java(OrderManagerEntityMapper(customerDetails.getCustomerOrders()))")
     CustomerDetailsEntity customerDetailsEntityMapper(CustomerDetailsPojo customerDetails);
 
    default List<ProductOrderManagerEntity> OrderManagerEntityMapper(List<ProductOrderManagerEntity> orderManagerEntities){

@@ -14,9 +14,10 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(schema = "oms", name = "PRODUCT_DETAILS")
+@Table(schema = "OMS_ADVANCE", name = "PRODUCT_DETAILS")
 public class ProductDetailsEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PRODUCT_ID", nullable = false)
     private Long id;
     @Column(name = "MFG_ITEM_NUMBER", nullable = false)

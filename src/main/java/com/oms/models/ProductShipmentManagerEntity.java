@@ -12,15 +12,17 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
-@Table(schema = "OMS", name = "PRODUCT_SHIPMENT_MANAGER")
+@Table(schema = "OMS_ADVANCE", name = "PRODUCT_SHIPMENT_MANAGER")
 public class ProductShipmentManagerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PRODUCT_SHIPMENT_ID", nullable = false)
     private Long id;
-    @Column(name = "PENDING_QTY", nullable = false)
-    private Long pendingQty;
+
+    @Column(name = "SCHEDULE_QTY", nullable = false)
+    private Long scheduleQty;
+
     @Column(name = "ESPL_PO_OR_EBIS_NO")
     private String esplPO;
 
@@ -35,13 +37,19 @@ public class ProductShipmentManagerEntity {
     @Column(name = "INVOICE_NO")
     private String invoiceNo;
 
+
+    @Column(name = "INVOICE_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date invoiceDate;
+
     @Column(name = "CREATED_BY")
     private String createdBy;
 
-    @CreatedDate
+
     @Column(name = "CREATED_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
+
     @Column(name = "MODIFIED_BY")
     private String modifiedBy;
 
@@ -50,8 +58,8 @@ public class ProductShipmentManagerEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedDate;
 
-    @Column(name = "CUSTOMER_ID")
-    private Long customerId;
+//    @Column(name = "CUSTOMER_ID")
+//    private Long customerId;
 
     //check requirement
     @Column(name = "PRODUCT_ORDER_ID")
@@ -61,18 +69,19 @@ public class ProductShipmentManagerEntity {
 //    @Column(name = "PRODUCT_ID", nullable = false)
 //    private Long productId;
 
-    @Column(name = "PRODUCT_ID")
-    private Long productId;
+//    @Column(name = "PRODUCT_ID")
+//    private Long productId;
 
     @ManyToOne
     @JoinColumn(name = "PRODUCT_ORDER_ID",insertable = false, updatable = false)
     @JsonBackReference(value = "test")
     private ProductOrderManagerEntity productOrderManagerEntity;
-    @ManyToOne
-    @JoinColumn(name = "CUSTOMER_ID",insertable = false, updatable = false)
-    @JsonBackReference
-    private CustomerDetailsEntity customerDetails;
 
+//    @ManyToOne
+//    @JoinColumn(name = "CUSTOMER_ID",insertable = false, updatable = false)
+//    @JsonBackReference
+//    private CustomerDetailsEntity customerDetails;
+//
 
 
     @PreUpdate
@@ -83,4 +92,5 @@ public class ProductShipmentManagerEntity {
     public void setCreatedDateCurrent() {
         this.createdDate =  new Date();
     }
+
 }

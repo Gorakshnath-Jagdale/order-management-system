@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(schema = "OMS", name = "CUSTOMER_DETAILS")
+@Table(schema = "OMS_ADVANCE", name = "CUSTOMER_DETAILS")
 public class CustomerDetailsEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +28,18 @@ public class CustomerDetailsEntity {
 
     @Column(name = "CUSTOMER_CONTACT")
     private String customerContact;
+
+    @Column(name = "GSTIN_OR_UIN")
+    private String gstin;
+
+    @Column(name = "STATE_NAME")
+    private String stateName;
+
+    @Column(name = "CODE")
+    private int code;
+
+    @Column(name = "PAYMENT_TERM")
+    private int paymentTerm;
 
     @Column(name = "CREATED_BY")
     private String createdBy;
@@ -45,15 +57,10 @@ public class CustomerDetailsEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifiedDate;
 
-    @JsonBackReference
-    @OneToMany(mappedBy = "customerId",fetch = FetchType.EAGER, targetEntity = ProductOrderManagerEntity.class,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
-//   @JoinColumn(name = "CUSTOMER_ID",referencedColumnName = "CUSTOMER_ID")
-    private List<ProductOrderManagerEntity> customerOrders;
+//    @JsonBackReference
+//    @OneToMany(mappedBy = "customerId",fetch = FetchType.EAGER, targetEntity = ProductOrderManagerEntity.class,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+//    private List<ProductOrderManagerEntity> customerOrders;
 
-//    @JsonBackReference(value = "test2")
-//    @OneToMany(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "CUSTOMER_ID",referencedColumnName = "CUSTOMER_ID",insertable = false, updatable = false)
-//    private List<ProductShipmentManagerEntity> productShipments;
 
     @PreUpdate
     public void setModifiedDateCurrent() {
