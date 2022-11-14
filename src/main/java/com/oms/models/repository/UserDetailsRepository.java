@@ -6,4 +6,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity,Long> {
+    UserDetailsEntity findByUserNameIgnoreCaseAndUserPassIgnoreCase(String userName, String userPass);
+
+    UserDetailsEntity findByLoginIdIgnoreCaseAndUserPassIgnoreCase(String loginId, String userPass);
+
+
+
+
 }

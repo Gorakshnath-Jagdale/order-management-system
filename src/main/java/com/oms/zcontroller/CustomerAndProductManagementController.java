@@ -1,10 +1,11 @@
 package com.oms.zcontroller;
 
 import com.oms.dto.RequestStructure;
+import com.oms.dto.ResponseStructure;
 import com.oms.dto.requests.Customer;
+import com.oms.dto.requests.Manufacturer;
 import com.oms.dto.requests.Product;
 import com.oms.execeptions.OMSError;
-import com.oms.pojo.ResponseStructure;
 import com.oms.service.ManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/api/manage/")
@@ -104,6 +106,26 @@ public class CustomerAndProductManagementController {
         var response = new ResponseStructure<List<Product>>();
         try {
             response.setResult(customerManagementService.getProducts());
+        } catch (Exception e) {
+            response.setError(new OMSError("WENT-WRONG", e.getMessage()));
+        }
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping(value = "/product/getManufacturers")
+    public ResponseEntity<ResponseStructure<Set<Manufacturer>>> getManufacturers() {
+        var response = new ResponseStructure<Set<Manufacturer>>();
+        try {
+            response.setResult(customerManagementService.getManufacturers());
+        } catch (Exception e) {
+            response.setError(new OMSError("WENT-WRONG", e.getMessage()));
+        }
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping(value = "/product/getProductsByManufacturer/{manufacturer}")
+    public ResponseEntity<ResponseStructure<List<Product>>> getProductsByManufacturer(@PathVariable(name = "manufacturer") String manufacturer) {
+        var response = new ResponseStructure<List<Product>>();
+        try {
+            response.setResult(customerManagementService.getProductsByManufacturer(manufacturer));
         } catch (Exception e) {
             response.setError(new OMSError("WENT-WRONG", e.getMessage()));
         }

@@ -34,7 +34,7 @@ public class POMasterEntity {
     private String orderStatus;
 
     @Column(name = "TOTAL_AMOUNT", nullable = false)
-    private float totalAmount;
+    private double totalAmount;
 
     @Column(name = "USER_LEVEL", nullable = false)
     private int userLevel;

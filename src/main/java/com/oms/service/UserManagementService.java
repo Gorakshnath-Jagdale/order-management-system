@@ -21,6 +21,7 @@ public class UserManagementService {
         newUser.setUserPass(user.getUserPass());
         newUser.setLoginId(user.getLoginId());
         newUser.setContactNumber(user.getContactNumber());
+        newUser.setUserLevel(2);
         newUser.setActiveUser(true);
         var savedUser = userDetailsRepository.save(newUser);
         return savedUser.getUserName() + " Save with Login Id -" + savedUser.getLoginId() + " User Id generated is :" + savedUser.getId();
@@ -47,6 +48,7 @@ public class UserManagementService {
             updatingUser.setLoginId(user.getLoginId());
             updatingUser.setContactNumber(user.getContactNumber());
             updatingUser.setActiveUser(user.isActiveUser());
+            updatingUser.setUserLevel(2);
             var savedUser = userDetailsRepository.save(updatingUser);
             return savedUser.getUserName() + " Save with Login Id -" + savedUser.getLoginId() + " User Id generated is :" + savedUser.getId();
         } else {
@@ -69,11 +71,23 @@ public class UserManagementService {
         updatingUser.setLoginId(userDetailsEntity.getLoginId());
         updatingUser.setContactNumber(userDetailsEntity.getContactNumber());
         updatingUser.setActiveUser(userDetailsEntity.isActiveUser());
+        updatingUser.setUserLevel(userDetailsEntity.getUserLevel());
         return updatingUser;
     }
 
     public UserDetailsPojo getUser(Long userId) throws Exception {
         var user = userDetailsRepository.findById(userId).orElseThrow(Exception::new);
         return userDetailsMapper(user);
+    }
+
+    public UserDetailsPojo login(UserDetailsPojo user) {
+        var userDetails=userDetailsRepository.findByLoginIdIgnoreCaseAndUserPassIgnoreCase(user.getLoginId(),user.getUserPass());
+        if(userDetails!=null)
+        {
+            return userDetailsMapper(userDetails);
+        }else
+        {
+           return null;
+        }
     }
 }

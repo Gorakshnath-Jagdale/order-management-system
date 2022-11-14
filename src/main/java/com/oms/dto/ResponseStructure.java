@@ -10,4 +10,5 @@ public class ResponseStructure<T> {
 
     private T result;
     private OMSError error;
+    private boolean flag;
 }

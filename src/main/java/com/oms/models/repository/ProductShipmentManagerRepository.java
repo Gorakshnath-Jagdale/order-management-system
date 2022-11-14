@@ -7,10 +7,10 @@ import java.util.Date;
 import java.util.List;
 
 public interface ProductShipmentManagerRepository extends JpaRepository<ProductShipmentManagerEntity,Long> {
-   // List<ProductShipmentManagerEntity> findByOrderByCustomerDetails_CustomerNameAscSupplierDeliveryDateDesc();
-   // List<ProductShipmentManagerEntity> findByCustomerDetails_IdAndSupplierDeliveryDateNull(Long id);
-  //  List<ProductShipmentManagerEntity> findByCustomerDetails_IdOrderBySupplierDeliveryDate(Long id);
-   //3 List<ProductShipmentManagerEntity> findBySupplierDeliveryDateNull();
+//    List<ProductShipmentManagerEntity> findByOrderByCustomerDetails_CustomerNameAscSupplierDeliveryDateDesc();
+//    List<ProductShipmentManagerEntity> findByCustomerDetails_IdAndSupplierDeliveryDateNull(Long id);
+//    List<ProductShipmentManagerEntity> findByCustomerDetails_IdOrderBySupplierDeliveryDate(Long id);
+  // 3 List<ProductShipmentManagerEntity> findBySupplierDeliveryDateNull();
 
 
 

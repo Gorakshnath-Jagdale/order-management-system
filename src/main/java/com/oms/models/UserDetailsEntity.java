@@ -13,7 +13,7 @@ import java.util.Objects;
 @Table(schema = "OMS_ADVANCE",name = "USER_DETAILS")
 public class UserDetailsEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_ID", nullable = false)
     private Long id;
     @Column(name = "USER_NAME", nullable = false)

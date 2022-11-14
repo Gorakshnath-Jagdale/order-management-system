@@ -15,7 +15,7 @@ public class PODetails {
     private Long id;
     private Date poDate;
     private String poNumber;
-    private float totalAmount;
+    private double totalAmount;
     private String orderStatus;
     private int userLevel;
     private Customer customerDetailsEntity;

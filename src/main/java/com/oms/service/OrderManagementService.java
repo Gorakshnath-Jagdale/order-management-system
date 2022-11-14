@@ -1,6 +1,9 @@
 package com.oms.service;
 
+import com.oms.dto.RequestStructure;
 import com.oms.dto.Requester;
+import com.oms.dto.requests.Customer;
+import com.oms.dto.requests.FilteredReportRequest;
 import com.oms.dto.requests.PODetails;
 import com.oms.dto.responses.PODetailAsList;
 import com.oms.mapper.NewCustomerMapper;
@@ -10,16 +13,26 @@ import com.oms.mapper.getAllOrderByCustomerIdAndPONumberMapper;
 import com.oms.mapper.response.ProductOrderMapper;
 import com.oms.models.POMasterEntity;
 import com.oms.models.ProductOrderManagerEntity;
+import com.oms.models.ProductShipmentManagerEntity;
 import com.oms.models.repository.*;
+import com.oms.pojo.requestPojo.GetExcelRequest;
 import com.oms.pojo.requestPojo.GetOrdersByCustomerAndPONumberRequest;
+import com.oms.service.util.Constants;
 import com.oms.service.util.ExcelGeneratorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +57,7 @@ public class OrderManagementService {
             throw new Exception("Invalid request");
         }
         //IF PO ID IS NULL THEN ITS NEW ORDERS
-        var po = updatePODetails(poDetails.getId(), poDetails.getPoNumber(), poDetails.getOrderStatus(), poDetails.getPoDate(), customerDetails.getId(), poDetails.getTotalAmount(), requester);
+        var po = updatePODetails(poDetails.getId(), poDetails.getPoNumber(), poDetails.getOrderStatus(), poDetails.getPoDate(), customerDetails, poDetails.getTotalAmount(), requester);
         poOrders.forEach(
                 order ->
                 {
@@ -71,7 +84,8 @@ public class OrderManagementService {
     }
 
 
-    private POMasterEntity updatePODetails(Long poId, String poNumber, String status, Date poDate, long customerId, float totalAmount, Requester requester) {
+    private POMasterEntity updatePODetails(Long poId, String poNumber, String status, Date poDate,
+                                           Customer customer, double totalAmount, Requester requester) {
         POMasterEntity po;
         if (poId == null) {
             po = new POMasterEntity();
@@ -80,11 +94,13 @@ public class OrderManagementService {
         } else {
             po = poMasterRepository.getById(poId);
             po.setModifiedBy(String.valueOf(requester.getUserId()));
-        }
+        }  Calendar cal = Calendar.getInstance();
+        cal.setTime(poDate);
+        cal.add(Calendar.DAY_OF_MONTH,customer.getPaymentTerm());
         po.setOrderStatus(status);
         po.setPoDate(poDate);
         po.setPoNumber(poNumber.trim());
-        po.setCustomerId(customerId);
+        po.setCustomerId(customer.getId());
         po.setTotalAmount(totalAmount);
 
         return poMasterRepository.save(po);
@@ -105,32 +121,60 @@ public class OrderManagementService {
 //    }
 //
 //
-//    public ByteArrayResource getReports(GetExcelRequest request) throws IOException {
-//        List<ProductShipmentManagerEntity> productShipmentsByCustomer = new ArrayList<>();
-//        if(!StringUtils.isEmpty(request.getPoNumber()))
-//        {
-//            var poOrders=orderManagerRepository.findByPoNumberIgnoreCase(request.getPoNumber());
+    public ByteArrayResource getReports(GetExcelRequest request, Requester requester) throws IOException {
+        List<POMasterEntity> entities = new ArrayList<>();
+        List<PODetails> entities2 = new ArrayList<>();
+        if(!StringUtils.isEmpty(request.getPoNumber()))
+        {
+            var po=poMasterRepository.findByPoNumberIgnoreCase(request.getPoNumber());
+            if(request.isGetOrdersWithEmptySDD()) {
+                po.getProductOrderManagerEntity().forEach(order -> {
+                            order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
+                                    shipment.getSupplierDeliveryDate() == null).collect(Collectors.toList()));
+                        }
+                );
+            }
+                entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));
+
 //            List<ProductShipmentManagerEntity> finalProductShipmentsByCustomer = productShipmentsByCustomer;
 //            poOrders.forEach(order-> finalProductShipmentsByCustomer.addAll(order.getProductShipmentDetails()));
-//            if(!request.isGetCompleteOrders()) productShipmentsByCustomer=  finalProductShipmentsByCustomer.stream().filter(x->x.getSupplierDeliveryDate()==null).collect(Collectors.toList());
-//        }else {
-//
-//            if (request.isSingleCustomer()) {
-//                if (request.isGetCompleteOrders()) {
-//                    productShipmentsByCustomer = productShipmentManagerRepository.findByCustomerDetails_IdOrderBySupplierDeliveryDate(request.getCustomerList().get(0));
-//                } else {
-//                    productShipmentsByCustomer = productShipmentManagerRepository.findByCustomerDetails_IdAndSupplierDeliveryDateNull(request.getCustomerList().get(0));
-//                }
-//            } else {
-//                if (!request.isGetCompleteOrders()) {
-//                    productShipmentsByCustomer = productShipmentManagerRepository.findBySupplierDeliveryDateNull();
-//                } else {
-//                    productShipmentsByCustomer = productShipmentManagerRepository.findByOrderByCustomerDetails_CustomerNameAscSupplierDeliveryDateDesc();
-//                }
-//            }
-//        }
-//        return excelGeneratorService.getOrderDetailsExcel(productShipmentsByCustomer, request.isSingleCustomer());
-//    }
+//            if(!request.isGetCompleteOrders()) productShipmentsByCustomer = finalProductShipmentsByCustomer.stream().filter(x->x.getSupplierDeliveryDate()==null).collect(Collectors.toList());
+        }
+        else if (request.isSingleCustomer()) {
+
+            if(request.isGetOrdersWithEmptySDD())
+            {
+              var    details=poMasterRepository.findByCustomerIdInAndOrderStatusInIgnoreCaseAndUserLevelOrderByPoDateDesc(request.getCustomerList(), Constants.POStatus.getStatusList(1),requester.getUserLevel());
+                details.forEach(po->
+                { po.getProductOrderManagerEntity().forEach(order-> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment->
+                                shipment.getSupplierDeliveryDate() == null).collect(Collectors.toList())));
+                                entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
+                        );
+            }
+            else
+            {
+               var details=poMasterRepository.findByCustomerIdInAndOrderStatusInIgnoreCaseAndUserLevelOrderByPoDateDesc(request.getCustomerList(), Constants.POStatus.getStatusList(request.getOrderStatusCode()),requester.getUserLevel());
+                details.forEach(po->entities2.add( poDetailsMapper.poDetailsPOJOMapper(po)));
+            }
+
+        }else
+        {
+            if(request.isGetOrdersWithEmptySDD())
+            {
+                var details=poMasterRepository.findByOrderStatusInIgnoreCaseAndUserLevelOrderByPoDateDesc(Constants.POStatus.getStatusList(1),requester.getUserLevel());
+                details.forEach(po->
+                        { po.getProductOrderManagerEntity().forEach(order-> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment->
+                                shipment.getSupplierDeliveryDate() == null).collect(Collectors.toList())));
+                            entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
+                );
+            }else
+            {
+                var details=poMasterRepository.findByOrderStatusInIgnoreCaseAndUserLevelOrderByPoDateDesc(Constants.POStatus.getStatusList(request.getOrderStatusCode()),requester.getUserLevel());
+                details.forEach(po->entities2.add( poDetailsMapper.poDetailsPOJOMapper(po)));
+            }
+        }
+        return excelGeneratorService.getOrderDetailsExcel(entities2, request.isSingleCustomer());
+    }
 //
 //    public List<ProductOrderManagerPojo> getAllOrder() {
 //        return getAllOrderByCustomerIdAndPONumberMapper.productOrderManagerEntityToProductOrderManagerPojoList(orderManagerRepository.findAll());
@@ -172,6 +216,60 @@ var poEntity=poMasterRepository.findByPoNumberIgnoreCaseAndCustomerIdAndUserLeve
     }
 
     public List<PODetailAsList> getAllPurchaseOrder(Requester request) {
-return poMasterRepository.getPoDetailsByUserLevel(request.getUserLevel());
+
+
+return poMasterRepository.getPoDetailsByUserLevelOrderByCreatedDateDesc(request.getUserLevel());
+    }
+
+    public String updateStatus(Long poId,Requester request,String requestedStatus) throws Exception {
+        String status;
+        switch (requestedStatus)
+        {
+            case "cancel":
+                status=Constants.POStatus.CANCEL_PO;
+                break;
+            case "amend":
+                status=Constants.POStatus.AMENDED_PO;
+                break;
+            case "complete":
+                status=Constants.POStatus.COMPLETED_PO;
+                break;
+            case "active":
+                status=Constants.POStatus.ACTIVE_PO;
+                break;
+            default:
+                throw new Exception("InvalidRequest");
+        }
+        if(poMasterRepository.existsByUserLevelAndId(request.getUserLevel(), poId))
+        {
+            var po=poMasterRepository.getById(poId);
+            po.setOrderStatus(status);
+            poMasterRepository.save(po);
+            return "Status Updated";
+        }else
+        {
+            throw new Exception("PO does not exist");
+        }
+    }
+
+    public List<PODetails> getFilteredReport(RequestStructure<FilteredReportRequest> request) {
+        var req=request.getRequest();
+        List<POMasterEntity> poMasterEntities = new ArrayList<>();
+        var statusList=req.getStatus()==null||req.getStatus().size()==0?Constants.POStatus.getStatusList(5):req.getStatus();
+        if(req.getCustomer()!=null&&req.getMfgItem()!=null)
+        {
+            poMasterEntities= poMasterRepository.findByOrderStatusInAndUserLevelAndCustomerIdAndProductOrderManagerEntity_ProductId(statusList,request.getRequester().getUserLevel(),req.getCustomer(),req.getMfgItem());
+        }else if(req.getCustomer()!=null){
+            poMasterEntities=  poMasterRepository.findByOrderStatusInAndUserLevelAndCustomerId(statusList,request.getRequester().getUserLevel(),req.getCustomer());
+        }else if(req.getMfgItem()!=null){
+            poMasterEntities=   poMasterRepository.findByOrderStatusInAndUserLevelAndProductOrderManagerEntity_ProductId(statusList,request.getRequester().getUserLevel(),req.getMfgItem());
+        }else if(req.getManufacturer()!=null){
+         //   will add logic in some time
+        }
+        List<PODetails> responsePOList=new ArrayList<>();
+        poMasterEntities.forEach(x->{
+            responsePOList.add( poDetailsMapper.poDetailsPOJOMapper(x));
+        });
+        return responsePOList;
     }
 }

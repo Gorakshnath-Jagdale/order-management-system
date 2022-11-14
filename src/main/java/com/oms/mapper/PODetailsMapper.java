@@ -16,6 +16,9 @@ public interface PODetailsMapper {
 
   // @Mapping(target = "poDate",expression = "java(new SimpleDateFormat(\"dd/MM/yyyy\").format(poMasterEntity.getPoDate()))")
    PODetails poDetailsPOJOMapper(POMasterEntity poMasterEntity);
+
+
+    List<PODetails> poDetailsPOJOListMapper(List<POMasterEntity> poMasterEntites);
     //@Mapping(target = "mfgItemNumber",source = "orderManagerEntity.mfgItemNumber.mfgItemNumber")
    // ProductOrderDetails orderDetailsPOJOMapper(ProductOrderManagerEntity orderManagerEntity);
 }

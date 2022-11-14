@@ -1,5 +1,8 @@
 package com.oms.zcontroller;
 
+import com.oms.dto.ResponseStructure;
+import com.oms.dto.requests.Customer;
+import com.oms.execeptions.OMSError;
 import com.oms.pojo.UserDetailsPojo;
 import com.oms.service.UserManagementService;
 import lombok.RequiredArgsConstructor;
@@ -43,4 +46,23 @@ public class UserManagementController {
         return ResponseEntity.ok(userManagementService.updateUserDetails(user));
     }
 
+    @PostMapping (
+            value = "/login",
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<ResponseStructure<UserDetailsPojo>> login(@RequestBody UserDetailsPojo user) {
+        var response = new ResponseStructure<UserDetailsPojo>();
+        try {
+            var x=userManagementService.login(user);
+            if(x==null)
+            {
+                throw new Exception("invalid Username/Password");
+            }
+            response.setResult(x);
+            response.setFlag(true);
+        } catch (Exception e) {
+            response.setFlag(false);
+            response.setError(new OMSError("WENT-WRONG", e.getMessage()));
+        }
+        return ResponseEntity.ok(response);
+    }
 }

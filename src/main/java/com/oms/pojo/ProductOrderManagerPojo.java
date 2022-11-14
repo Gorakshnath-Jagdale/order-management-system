@@ -19,9 +19,9 @@ public class ProductOrderManagerPojo {
     private Set<ProductShipmentManagerPojo> productShipmentDetails;
     private String customerItemNo;
     private String orderStatus;
-    private String pendingQty;
+    private long pendingQty;
     private String poNumber;
-    private String poQuantity;
+    private long poQuantity;
     private String remarks;
     private String suppliedQty;
     private float pov;//pending order value

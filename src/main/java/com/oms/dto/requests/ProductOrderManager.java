@@ -13,14 +13,10 @@ public class ProductOrderManager {
     private Long productId;
     private Product productDetails;
     private String customerItemNo;
-    private String pendingQty;
-    private float pov;      //pending order value
-    private float price;
+    private double price;
     private String poId;
-    private String poQuantity;
-    private float totalAmount;
-    private String remarks;
-    private Date poDate;
+    private long poQuantity;
+    private double totalAmount;
     private List<ProductShipmentManager> productShipmentDetails;
 
 }

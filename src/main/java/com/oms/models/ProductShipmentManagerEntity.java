@@ -23,6 +23,18 @@ public class ProductShipmentManagerEntity {
     @Column(name = "SCHEDULE_QTY", nullable = false)
     private Long scheduleQty;
 
+
+    @Column(name = "PENDING_QTY", nullable = false)
+    private Long pendingQty;
+    @Column(name = "SUPPLIED_QTY", nullable = false)
+    private Long suppliedQty;
+
+    @Column(name = "POV", nullable = false)
+    private float pov;//pending order value
+
+    @Column(name = "REMARKS")
+    private String remarks;
+
     @Column(name = "ESPL_PO_OR_EBIS_NO")
     private String esplPO;
 

@@ -5,6 +5,7 @@ import com.oms.dto.requests.ProductShipmentManager;
 import com.oms.models.ProductOrderManagerEntity;
 import com.oms.models.ProductShipmentManagerEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.List;
 public interface ProductOrderMapper {
 
     List<ProductOrderManagerEntity> productOrderListToProductOrderManagerEntityList(List<ProductOrderManager> productOrderManagerDto);
+    @Mapping(target = "productId",source = "productOrderManagerDto.productDetails.id")
     ProductOrderManagerEntity ProductOrderToProductOrderManagerEntity(ProductOrderManager productOrderManagerDto);
 
     ProductShipmentManagerEntity ProductShipmentToProductShipmentManagerEntity(ProductShipmentManager ProductShipmentManager);

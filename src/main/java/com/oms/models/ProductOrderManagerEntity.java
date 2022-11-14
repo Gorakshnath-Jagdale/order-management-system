@@ -24,20 +24,15 @@ public class ProductOrderManagerEntity {
     private Long id;
     @Column(name = "PO_ID", nullable = false)
     private Long poId;
-    @Column(name = "PO_DATE", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date poDate;
+
     @Column(name = "CUSTOMER_ITEM_NO", nullable = false)
     private String customerItemNo;
 
     @Column(name = "PRICE", nullable = false)
-    private float price;
+    private double price;
 
     @Column(name = "PO_QTY", nullable = false)
-    private String poQuantity;
-
-    @Column(name = "PENDING_QTY", nullable = false)
-    private String pendingQty;
+    private Long poQuantity;
 
     @Column(name = "CUSTOMER_ID")
     private Long customerId;
@@ -45,16 +40,10 @@ public class ProductOrderManagerEntity {
     @Column(name = "PRODUCT_ID")
     private Long productId;
 
-//    @Column(name = "SUPPLIED_QTY", nullable = false)
-//    private String suppliedQty;
 
-    @Column(name = "POV", nullable = false)
-    private float pov;//pending order value
     @Column(name = "TOTAL_AMOUNT", nullable = false)
-    private float totalAmount;//pending order value
+    private double totalAmount;//pending order value
 
-    @Column(name = "REMARKS", nullable = false)
-    private String remarks;
 
 //    @Column(name = "ORD_STATUS", nullable = false)
 //    private String orderStatus;

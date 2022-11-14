@@ -1,8 +1,6 @@
 package com.oms.service.util;
 
-import com.oms.models.ProductOrderManagerEntity;
-import com.oms.models.ProductShipmentManagerEntity;
-import com.oms.pojo.Customers;
+import com.oms.dto.requests.PODetails;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -10,15 +8,19 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.oms.service.util.Constants.POStatus.ELEKTRONIKA_FEEDBACK;
 
 @Component
 public class ExcelGeneratorService {
 
-    public ByteArrayResource getOrderDetailsExcel(List<ProductShipmentManagerEntity>  shipmentManagerEntities,boolean isSingleCustomer) throws IOException {
+    SimpleDateFormat format=new SimpleDateFormat("dd/MM/yyyy");
+    public ByteArrayResource getOrderDetailsExcel(List<PODetails> poList, boolean isSingleCustomer) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("SHEET");
 
@@ -35,17 +37,17 @@ public class ExcelGeneratorService {
 
         if(isSingleCustomer)
         {
-            sheet.addMergedRegion(new CellRangeAddress(0,1,0,12));
-            sheet.addMergedRegion(new CellRangeAddress(0,1,13,19));
-         //   powerHeaderRowOne.createCell(0).setCellValue(shipmentManagerEntities.get(0).getCustomerDetails().getCustomerName());
-            powerHeaderRowOne.createCell(13).setCellValue("Electronika Feedback");
+            sheet.addMergedRegion(new CellRangeAddress(0,1,0,10));
+            sheet.addMergedRegion(new CellRangeAddress(0,1,11,18));
+            powerHeaderRowOne.createCell(0).setCellValue(poList.get(0).getCustomerDetailsEntity().getCustomerName());
+            powerHeaderRowOne.createCell(11).setCellValue(ELEKTRONIKA_FEEDBACK);
             powerHeaderRowOne.getCell(0).setCellStyle(getCellStyle(1,style));
-            powerHeaderRowOne.getCell(13).setCellStyle(getCellStyle(2,style2));
+            powerHeaderRowOne.getCell(11).setCellStyle(getCellStyle(2,style2));
         }else
         {
 
-            sheet.addMergedRegion(new CellRangeAddress(0,1,0,19));
-            powerHeaderRowOne.createCell(0).setCellValue("Electronika Feedback");
+            sheet.addMergedRegion(new CellRangeAddress(0,1,0,18));
+            powerHeaderRowOne.createCell(0).setCellValue(ELEKTRONIKA_FEEDBACK);
             powerHeaderRowOne.getCell(0).setCellStyle(getCellStyle(1,style));
         }
         //sheet.createRow(rowIdx++);
@@ -71,14 +73,14 @@ public class ExcelGeneratorService {
         headerRow.createCell(10).setCellValue("Customer Requested Date(CRD)");
         headerRow.createCell(11).setCellValue("Supplied Qty");
         headerRow.createCell(12).setCellValue("Pending Qty");
-        headerRow.createCell(13).setCellValue("ESPL PO/EBIS No");
+        headerRow.createCell(13).setCellValue("ESPL PO");
         headerRow.createCell(14).setCellValue("Supplier deliver Date");
         headerRow.createCell(15).setCellValue("Invoice No");
         headerRow.createCell(16).setCellValue("End Customer Bill Date");
         headerRow.createCell(17).setCellValue("POV");
         headerRow.createCell(18).setCellValue("Remarks");
         for (int i = 0; i < 19; i++) {
-            if(i<13)
+            if(i<11)
             {
                 headerRow.getCell(i).setCellStyle(getCellStyle(3,style3));
             }else{
@@ -86,39 +88,67 @@ public class ExcelGeneratorService {
             }
 
         }
-        for (var order : shipmentManagerEntities) {
-            Row row = sheet.createRow(rowIdx++);
-            int rowCounter = 1;
-            row.createCell(0).setCellValue(++rowCounter);
-            row.createCell(1).setCellValue(order.getProductOrderManagerEntity().getPoMasterEntity().getPoNumber());
-            row.createCell(2).setCellValue(order.getProductOrderManagerEntity().getPoDate().toString());
-          //  row.createCell(3).setCellValue(order.getProductOrderManagerEntity().getCustomerDetails().getCustomerName());
-            row.createCell(4).setCellValue(order.getProductOrderManagerEntity().getCustomerItemNo());
-            row.createCell(5).setCellValue(order.getProductOrderManagerEntity().getProductDetails().getMfgItemNumber());
-            row.createCell(6).setCellValue(order.getProductOrderManagerEntity().getProductDetails().getProductDetails());
-            row.createCell(7).setCellValue(order.getProductOrderManagerEntity().getProductDetails().getManufacturer());
-            row.createCell(8).setCellValue(order.getProductOrderManagerEntity().getPrice());
-            row.createCell(9).setCellValue(order.getProductOrderManagerEntity().getPoQuantity());
-            row.createCell(10).setCellValue(order.getCustomerRequestedDate()==null?"":order.getCustomerRequestedDate().toString());
-          //  row.createCell(11).setCellValue(order.getProductOrderManagerEntity().getSuppliedQty());
-            row.createCell(12).setCellValue(order.getScheduleQty());
-            row.createCell(13).setCellValue(order.getEsplPO()==null?"":order.getEsplPO());
-            row.createCell(14).setCellValue(order.getSupplierDeliveryDate()==null?"":order.getSupplierDeliveryDate().toString());
-            row.createCell(15).setCellValue(order.getInvoiceNo());
-            row.createCell(16).setCellValue("customer bill date");
-            row.createCell(17).setCellValue(order.getProductOrderManagerEntity().getPov());
-            row.createCell(18).setCellValue(order.getProductOrderManagerEntity().getRemarks());
-            for (int i = 0; i < 19; i++) {
-                row.getCell(i).setCellStyle(getCellStyle(0, style5));
-            }
-        }
-        for (int i = 0; i < 20; i++) {
-            sheet.autoSizeColumn(i);
-        }
+        AtomicInteger finalRowIdx = new AtomicInteger(rowIdx);
+        poList.forEach(
+                po->
+                {
+                    finalRowIdx.set(excelCreation(sheet, po, finalRowIdx.get(), style5));
+                }
+        );
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         workbook.write(out);
         return new ByteArrayResource(out.toByteArray());
     }
+
+    private int excelCreation(Sheet sheet,PODetails po,int finalRowIdx,CellStyle style5) {
+
+        AtomicInteger rowIdx = new AtomicInteger(finalRowIdx);
+po.getProductOrderManagerEntity().forEach(order->
+        {
+
+            for (var shipment : order.getProductShipmentDetails()) {
+                Row row = sheet.createRow(rowIdx.getAndIncrement());
+                row.createCell(0).setCellValue(rowIdx.get()-3);
+                row.createCell(1).setCellValue(po.getPoNumber());
+                row.createCell(2).setCellValue(format.format(po.getPoDate()));
+                  row.createCell(3).setCellValue(po.getCustomerDetailsEntity().getCustomerName());
+                row.createCell(4).setCellValue(order.getCustomerItemNo());
+                row.createCell(5).setCellValue(order.getProductDetails().getMfgItemNumber());
+                row.createCell(6).setCellValue(order.getProductDetails().getProductDetails());
+                row.createCell(7).setCellValue(order.getProductDetails().getManufacturer());
+                row.createCell(8).setCellValue(String.valueOf(order.getPrice()));
+                row.createCell(9).setCellValue(shipment.getScheduleQty());
+                row.createCell(10).setCellValue(shipment.getCustomerRequestedDate() == null ? "" : format.format(shipment.getCustomerRequestedDate()));
+                row.createCell(11).setCellValue(String.valueOf(shipment.getSuppliedQty()));
+                row.createCell(12).setCellValue(shipment.getPendingQty()==null?0:shipment.getPendingQty());
+                row.createCell(13).setCellValue(shipment.getEsplPO() == null ? "" : shipment.getEsplPO());
+                row.createCell(14).setCellValue(shipment.getSupplierDeliveryDate() == null ? "" : format.format(shipment.getSupplierDeliveryDate()));
+                row.createCell(15).setCellValue(shipment.getInvoiceNo());
+                row.createCell(16).setCellValue(shipment.getInvoiceDate()==null?"":format.format(shipment.getInvoiceDate()));
+                row.createCell(17).setCellValue(String.valueOf(shipment.getPov()));
+                row.createCell(18).setCellValue(shipment.getRemarks());
+                for (int i = 0; i < 19; i++) {
+                    row.getCell(i).setCellStyle(getCellStyle(0, style5));
+                }
+            }
+//            if(finalRowIdx<rowIdx.get()-1) {
+//                sheet.addMergedRegion(new CellRangeAddress(finalRowIdx, rowIdx.get() - 1, 17, 17));
+//                sheet.addMergedRegion(new CellRangeAddress(finalRowIdx, rowIdx.get() - 1, 8, 8));
+//                sheet.addMergedRegion(new CellRangeAddress(finalRowIdx, rowIdx.get() - 1, 9, 9));
+//                sheet.addMergedRegion(new CellRangeAddress(finalRowIdx, rowIdx.get() - 1, 11, 11));
+//                sheet.addMergedRegion(new CellRangeAddress(finalRowIdx, rowIdx.get() - 1, 12, 12));
+//
+//            }
+        }
+);
+
+        for (int i = 0; i < 19; i++) {
+            sheet.autoSizeColumn(i);
+        }
+        return rowIdx.get();
+    }
+
 
     private CellStyle getCellStyle(int styleNo,CellStyle style) {
         if (styleNo == 1) {

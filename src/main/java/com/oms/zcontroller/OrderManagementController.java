@@ -2,6 +2,8 @@ package com.oms.zcontroller;
 
 import com.oms.dto.RequestStructure;
 import com.oms.dto.Requester;
+import com.oms.dto.ResponseStructure;
+import com.oms.dto.requests.FilteredReportRequest;
 import com.oms.dto.responses.PODetailAsList;
 import com.oms.execeptions.OMSError;
 import com.oms.pojo.*;
@@ -101,24 +103,39 @@ public class OrderManagementController {
 
 
     /* GET REPORTS */
-//    @PostMapping(value = "/getReports", consumes = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<ByteArrayResource> getReports(@RequestBody GetExcelRequest customerDetails) {
-//        var response = new ResponseStructure<CustomerDetailsPojo>();
-//        String filename = "Report-" + new Date() + ".xlsx";
-//
-//        try {
-//            var file = orderManagementService.getReports(customerDetails);
-//
-//            return ResponseEntity.ok()
-//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-//                    .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
-//                    .body(file);
-//
-//        } catch (Exception e) {
-//            response.setError(new OMSError("WENT-WRONG", e.getMessage()));
-//        }
-//        return ResponseEntity.ok().contentType(MediaType.parseMediaType(MediaType.APPLICATION_JSON_VALUE)).body(null);
-//    }
+    @PostMapping(value = "/getReports", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ByteArrayResource> getReports(@RequestBody RequestStructure<GetExcelRequest> request) {
+        var response = new ResponseStructure<CustomerDetailsPojo>();
+        String filename = "Report-"+new Date()+".xlsx";
+
+        try {
+            var file = orderManagementService.getReports(request.getRequest(),request.getRequester());
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                    .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+                    .body(file);
+
+        } catch (Exception e) {
+            response.setError(new OMSError("WENT-WRONG", e.getMessage()));
+        }
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType(MediaType.APPLICATION_JSON_VALUE)).body(null);
+    }
+
+    @PostMapping(value = "/getFilteredReport", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseStructure<List<PODetails>>> getFilteredReport(@RequestBody RequestStructure<FilteredReportRequest> request) {
+        var response = new ResponseStructure<List<PODetails>>();
+
+        try {
+            response.setResult(orderManagementService.getFilteredReport(request));
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.setError(new OMSError("WENT-WRONG", e.getMessage()));
+        }
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType(MediaType.APPLICATION_JSON_VALUE)).body(null);
+    }
     /* GET REPORTS END */
 
 //
@@ -193,9 +210,17 @@ public class OrderManagementController {
 
     /* General get calls end */
 
+    @PostMapping(value = "/{operation}/{poId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseStructure<String>> completePO(@PathVariable(name = "operation")String operation,@PathVariable(name = "poId")Long poId,@RequestBody Requester request) {
+        var response = new ResponseStructure<String>();
+        try {
 
-    public ResponseEntity<ResponseStructure<List<PODetails>>> getPODetails(String poNumber) {
-        return null;
+            response.setResult(orderManagementService.updateStatus(poId,request,operation));
+        } catch (Exception e) {
+            response.setError(new OMSError("WENT-WRONG", e.getMessage()));
+        }
+        return ResponseEntity.ok(response);
     }
+
 }
     

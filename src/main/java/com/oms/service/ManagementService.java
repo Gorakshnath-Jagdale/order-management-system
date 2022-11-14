@@ -1,16 +1,25 @@
 package com.oms.service;
 
+import com.oms.dto.Requester;
 import com.oms.dto.requests.Customer;
+import com.oms.dto.requests.Manufacturer;
 import com.oms.dto.requests.Product;
 import com.oms.mapper.response.CustomerMapper;
 import com.oms.mapper.response.ProductMapper;
 import com.oms.models.repository.CustomerDetailsRepository;
+import com.oms.models.repository.POMasterRepository;
 import com.oms.models.repository.ProductDetailsRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +28,7 @@ public class ManagementService {
     private final ProductDetailsRepository productDetailsRepository;
     private final CustomerMapper customerMapper;
     private final ProductMapper productMapper;
+    private final POMasterRepository poMasterRepository;
 
     public Customer createCustomer(Customer customer,int requesterUserId) throws Exception {
       if(customer!=null)
@@ -104,5 +114,28 @@ if(customerDetailsRepository.existsById(customer.getId()))
     public List<Product> getProducts() {
         return productMapper.productDetailsEntityListToProductList(productDetailsRepository.findAll());
 
+    }
+
+    public List<Product> getProductsByManufacturer(String manufacturer) {
+        return productMapper.productDetailsEntityListToProductList(productDetailsRepository.findByManufacturerIgnoreCase(manufacturer.trim()));
+
+    }
+
+    public Set<Manufacturer> getManufacturers() {
+        return productDetailsRepository.findAllManufacturer();
+    }
+
+
+    private Path storageLocation;
+    public Resource loadFileResource(String poNumber, Requester request) throws Exception {
+
+            this.storageLocation = Paths.get("C:/Users/Documents").toAbsolutePath().normalize();
+            Path filePath = storageLocation.resolve(poNumber).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists()) {
+                return resource;
+            } else {
+                throw new Exception("File not found");
+            }
     }
 }
