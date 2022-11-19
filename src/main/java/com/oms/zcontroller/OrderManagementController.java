@@ -4,6 +4,7 @@ import com.oms.dto.RequestStructure;
 import com.oms.dto.Requester;
 import com.oms.dto.ResponseStructure;
 import com.oms.dto.requests.FilteredReportRequest;
+import com.oms.dto.requests.ScheduleUpdateRequest;
 import com.oms.dto.responses.PODetailAsList;
 import com.oms.execeptions.OMSError;
 import com.oms.pojo.*;
@@ -57,7 +58,18 @@ public class OrderManagementController {
         }
         return ResponseEntity.ok(response);
     }
-
+    @PostMapping(value = "/updateSchedules", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public  ResponseEntity<ResponseStructure<String>> updateSchedules(@RequestBody RequestStructure<ScheduleUpdateRequest> request)  {
+        var response = new ResponseStructure<String>();
+        try {
+            /*SAVE AND UPDATE USE SAME SERVICE METHOD */
+            response.setResult(orderManagementService.updateSchedules(request.getRequester() ,request.getRequest()));
+            response.setError(new OMSError("", ""));
+        } catch (Exception e) {
+            response.setError(new OMSError("WENT-WRONG", String.valueOf(e)));
+        }
+        return ResponseEntity.ok(response);
+    }
 
 //    @PostMapping(value = "/getPurchaseOrder", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 //    public ResponseEntity<ResponseStructure<CustomerDetailsPojo>> getPurchaseOrder(@RequestBody CustomerDetailsPojo customerDetails) {

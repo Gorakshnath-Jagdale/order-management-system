@@ -20,4 +20,6 @@ public interface ProductOrderMapper {
 
 
     List<ProductOrderManager> productOrderEntityListToProductOrderManagerList(List<ProductOrderManagerEntity> productOrderManagerDto);
+
+    ProductShipmentManager productShipmentManagerEntityToProductShipmentManager(ProductShipmentManagerEntity productOrderManagerEntity);
 }

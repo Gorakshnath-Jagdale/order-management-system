@@ -5,6 +5,7 @@ import com.oms.dto.Requester;
 import com.oms.dto.requests.Customer;
 import com.oms.dto.requests.FilteredReportRequest;
 import com.oms.dto.requests.PODetails;
+import com.oms.dto.requests.ScheduleUpdateRequest;
 import com.oms.dto.responses.PODetailAsList;
 import com.oms.mapper.NewCustomerMapper;
 import com.oms.mapper.PODetailsMapper;
@@ -13,7 +14,6 @@ import com.oms.mapper.getAllOrderByCustomerIdAndPONumberMapper;
 import com.oms.mapper.response.ProductOrderMapper;
 import com.oms.models.POMasterEntity;
 import com.oms.models.ProductOrderManagerEntity;
-import com.oms.models.ProductShipmentManagerEntity;
 import com.oms.models.repository.*;
 import com.oms.pojo.requestPojo.GetExcelRequest;
 import com.oms.pojo.requestPojo.GetOrdersByCustomerAndPONumberRequest;
@@ -27,7 +27,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,16 +36,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderManagementService {
-    private final CustomerDetailsRepository customerDetailsRepository;
-    private final ResponseMapper responseMapper;
-    private final NewCustomerMapper newCustomerMapper;
     private final ExcelGeneratorService excelGeneratorService;
-    private final ProductDetailsRepository productDetailsRepository;
     private final ProductOrderManagerRepository productOrderManagerRepository;
     private final ProductShipmentManagerRepository productShipmentManagerRepository;
     private final POMasterRepository poMasterRepository;
     private final PODetailsMapper poDetailsMapper;
-    private final getAllOrderByCustomerIdAndPONumberMapper getAllOrderByCustomerIdAndPONumberMapper;
     private final ProductOrderMapper productOrderMapper;
 
     @Transactional
@@ -81,6 +75,43 @@ public class OrderManagementService {
         poDetails.setProductOrderManagerEntity(productOrderMapper.productOrderEntityListToProductOrderManagerList(savedOrders));
         poDetails.setId(po.getId());
         return poDetails;
+    }
+
+    @Transactional
+    public String updateSchedules(Requester requester, ScheduleUpdateRequest request) {
+        var orderPersisted = productOrderManagerRepository.findById(request.getProductOrderId());
+
+                        if (orderPersisted.isPresent()) {
+                            var test = orderPersisted.get();
+                            orderPersisted.get().setPoId(test.getPoId());
+                            orderPersisted.get().setCreatedDate(test.getCreatedDate());
+                            orderPersisted.get().setCreatedBy(test.getCreatedBy());
+                            orderPersisted.get().setModifiedBy(String.valueOf(requester.getUserId()));
+
+                            if(request.getProductShipmentManager().getId()!=null)
+                            {
+                               var schedule= productShipmentManagerRepository.getById(request.getProductShipmentManager().getId());
+                                schedule.setScheduleQty(request.getProductShipmentManager().getScheduleQty());
+                                schedule.setSuppliedQty(request.getProductShipmentManager().getSuppliedQty());
+                                schedule.setPendingQty(request.getProductShipmentManager().getPendingQty());
+                                schedule.setEsplPO(request.getProductShipmentManager().getEsplPO());
+                                schedule.setInvoiceNo(request.getProductShipmentManager().getInvoiceNo());
+                                schedule.setInvoiceDate(request.getProductShipmentManager().getInvoiceDate());
+                                schedule.setSupplierDeliveryDate(request.getProductShipmentManager().getSupplierDeliveryDate());
+                                schedule.setPov(request.getProductShipmentManager().getPov());
+                                schedule.setModifiedBy(String.valueOf(requester.getUserId()));
+                                productShipmentManagerRepository.save(schedule);
+                            }else
+                            {
+                                request.getProductShipmentManager().setCreatedBy(String.valueOf(requester.getUserId()));
+                                orderPersisted.get().getProductShipmentDetails().add(productOrderMapper.ProductShipmentToProductShipmentManagerEntity(request.getProductShipmentManager()));
+                                var savedOrders=productOrderManagerRepository.save(orderPersisted.get());
+                            }
+
+                        }
+
+
+                    return "success";
     }
 
 

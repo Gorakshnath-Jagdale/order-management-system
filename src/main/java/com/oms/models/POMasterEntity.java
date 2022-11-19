@@ -39,6 +39,9 @@ public class POMasterEntity {
     @Column(name = "USER_LEVEL", nullable = false)
     private int userLevel;
 
+    @Column(name="PO_DOCUMENT_NAME")
+    private String poDocumentName;
+
     @Column(name = "CREATED_BY")
     private String createdBy;
 
@@ -64,6 +67,10 @@ public class POMasterEntity {
     @JoinColumn(name = "CUSTOMER_ID",insertable = false, updatable = false)
     @JsonBackReference(value = "test2")
     private CustomerDetailsEntity customerDetailsEntity;
+    @ManyToOne
+    @JoinColumn(name = "CREATED_BY",insertable = false, updatable = false)
+    @JsonBackReference(value = "userDetailsEntity")
+    private UserDetailsEntity userDetailsEntity;
 
 
     @PreUpdate

@@ -126,16 +126,4 @@ if(customerDetailsRepository.existsById(customer.getId()))
     }
 
 
-    private Path storageLocation;
-    public Resource loadFileResource(String poNumber, Requester request) throws Exception {
-
-            this.storageLocation = Paths.get("C:/Users/Documents").toAbsolutePath().normalize();
-            Path filePath = storageLocation.resolve(poNumber).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
-            if (resource.exists()) {
-                return resource;
-            } else {
-                throw new Exception("File not found");
-            }
-    }
 }

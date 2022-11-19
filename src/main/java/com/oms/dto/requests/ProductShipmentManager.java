@@ -10,7 +10,7 @@ public class ProductShipmentManager {
     private Long scheduleQty;
     private Long pendingQty;
     private Long suppliedQty;
-    private float pov;
+    private double pov;
     private Long productOrderId;
     private String esplPO;
     private String invoiceNo;

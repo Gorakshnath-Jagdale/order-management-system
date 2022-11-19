@@ -1,6 +1,7 @@
 package com.oms.mapper;
 
 import com.oms.dto.requests.PODetails;
+import com.oms.dto.requests.ProductOrderManager;
 import com.oms.models.POMasterEntity;
 import com.oms.models.ProductOrderManagerEntity;
 
@@ -19,6 +20,8 @@ public interface PODetailsMapper {
 
 
     List<PODetails> poDetailsPOJOListMapper(List<POMasterEntity> poMasterEntites);
+
+    ProductOrderManager productOrderManagerEntityToProductOrderManager(ProductOrderManagerEntity productOrderManagerEntity);
     //@Mapping(target = "mfgItemNumber",source = "orderManagerEntity.mfgItemNumber.mfgItemNumber")
    // ProductOrderDetails orderDetailsPOJOMapper(ProductOrderManagerEntity orderManagerEntity);
 }

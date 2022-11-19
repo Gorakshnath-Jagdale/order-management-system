@@ -2,7 +2,12 @@ package com.oms.dto.responses;
 
 
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import javax.persistence.Column;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -13,27 +18,35 @@ public class PODetailAsList {
     private String poNumber;
     private Long customerId;
     private String customerName;
+    private String poDocumentName;
     private String orderStatus;
     private double totalAmount;
+    private String createdBy;
+    private String createdDate;
+    private String modifiedDate;
 
     public PODetailAsList(){
 
     }
-    public PODetailAsList(Long id,String poNumber,Date poDate,String orderStatus,double totalAmount,Long customerId,String customerName)
+    public PODetailAsList(Long id,String poNumber,Date poDate,String orderStatus,double totalAmount,Long customerId,String customerName,String createdBy,Date createdDate,Date modifiedDate,String poDocumentName)
     {
         this.id=id;
-        this.poDate=new SimpleDateFormat("dd/MM/yyyy").format(poDate);
+        this.poDate=getMyDate(poDate);
         this.poNumber=poNumber;
         this.orderStatus=orderStatus;
         this.totalAmount=totalAmount;
         this.customerId=customerId;
         this.customerName=customerName;
+        this.createdBy=createdBy;
+        this.createdDate=getMyDate(createdDate);
+         this.modifiedDate=getMyDate(modifiedDate);
+         this.poDocumentName=poDocumentName;
     }
     private String getMyDate(Date date) {
         try {
             return new SimpleDateFormat("dd/MM/yyyy").format(date);
         } catch (Exception e) {
-            return date.toString();
+            return "";
         }
     }
 
