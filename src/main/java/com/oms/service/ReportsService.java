@@ -1,5 +1,6 @@
 package com.oms.service;
 
+import ch.qos.logback.core.util.StringCollectionUtil;
 import com.oms.dto.RequestStructure;
 import com.oms.dto.requests.ReportsFilterRequest;
 import com.oms.dto.responses.ReportsFilterResponse;
@@ -11,106 +12,92 @@ import com.oms.models.ProductShipmentManagerEntity;
 import com.oms.models.repository.POMasterRepository;
 import com.oms.service.util.Constants;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.util.StringUtil;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.Join;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ReportsService {
     private final POMasterRepository poMasterRepository;
 
-    public List<ReportsFilterResponse> getFilteredOrderDetails(RequestStructure<ReportsFilterRequest> request) {
+    public List<ReportsFilterResponse> getFilteredOrderDetails(RequestStructure<ReportsFilterRequest> request) throws Exception {
         var requestBody = request.getRequest();
-
         Specification<POMasterEntity> test = Specification.where(null);
-
-        // INITIALLY ADDING FILTER FOR USER-LEVEL
-
-
         if (requestBody.getCustomerId() != null && requestBody.getCustomerId() != 0) {
-
             test = test.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("customerId"), requestBody.getCustomerId()));
+        }if(requestBody.getFromDate()!=null && requestBody.getToDate()!=null)
+        {
+            if(requestBody.getFromDate().after(requestBody.getToDate())) throw new Exception("From Date can not be greater that to date..");
+            test=test.and((r,q,c)->c.between(r.get("poDate"),requestBody.getFromDate(),requestBody.getToDate()));
         }
-        if (requestBody.getManufacturer() != null && !requestBody.getManufacturer().equalsIgnoreCase("")) {
+        test = test.and((r, q, c) -> r.get("orderStatus").in(Constants.POStatus.getStatusList(requestBody.getStatus() < 5 ? requestBody.getStatus() : 1)));
+        test=test.and((r,q,c)-> c.equal(r.get("userLevel"),request.getRequester().getUserLevel()));
+        var x = poMasterRepository.findAll(test);
 
-
-            if (requestBody.getProductId() != null && requestBody.getProductId() != 0) {
-
-
-                test = test.and((root, query, criteriaBuilder) -> {
-                    Join<POMasterEntity, ProductOrderManagerEntity> orderPORelation = root.join("productOrderManagerEntity");
-                    Join<ProductOrderManagerEntity, ProductDetailsEntity> orderScheduleRelation = orderPORelation.join("productDetails");
-                    return criteriaBuilder.equal(orderScheduleRelation.get("id"), requestBody.getProductId());
-                });
-
-            } else {
-                test = test.and((root, query, criteriaBuilder) -> {
-                    Join<POMasterEntity, ProductOrderManagerEntity> orderPORelation = root.join("productOrderManagerEntity");
-                    Join<ProductOrderManagerEntity, ProductDetailsEntity> orderScheduleRelation = orderPORelation.join("productDetails");
-                    return criteriaBuilder.equal(orderScheduleRelation.get("manufacturer"), requestBody.getManufacturer());
-                });
-            }
-        }
 
         if (requestBody.getStatus() == 5) {
-            test = test.and((root, query, criteriaBuilder) -> {
-                Join<POMasterEntity, ProductOrderManagerEntity> orderPORelation = root.join("productOrderManagerEntity");
-                Join<ProductOrderManagerEntity, ProductShipmentManagerEntity> orderScheduleRelation = orderPORelation.join("productShipmentDetails");
-                return criteriaBuilder.isNull(orderScheduleRelation.get("supplierDeliveryDate"));
+            x.forEach(po->
+            {
+              po.getProductOrderManagerEntity().forEach(order -> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
+                        shipment.getSupplierDeliveryDate() == null).collect(Collectors.toList())));
+                //  entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
             });
         } else if (requestBody.getStatus() == 6) {
-            test = test.and((root, query, criteriaBuilder) -> {
-                Join<POMasterEntity, ProductOrderManagerEntity> orderPORelation = root.join("productOrderManagerEntity");
-                Join<ProductOrderManagerEntity, ProductShipmentManagerEntity> orderScheduleRelation = orderPORelation.join("productShipmentDetails");
-                return criteriaBuilder.isNotNull(orderScheduleRelation.get("supplierDeliveryDate"));
-            });
-            test = test.and((root, query, criteriaBuilder) -> {
-                Join<POMasterEntity, ProductOrderManagerEntity> orderPORelation = root.join("productOrderManagerEntity");
-                Join<ProductOrderManagerEntity, ProductShipmentManagerEntity> orderScheduleRelation = orderPORelation.join("productShipmentDetails");
-                return criteriaBuilder.isNull(orderScheduleRelation.get("invoiceNo"));
-            });
+            x.forEach(po->
+                    { po.getProductOrderManagerEntity().forEach(order-> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment->
+                            shipment.getSupplierDeliveryDate() != null&& (shipment.getInvoiceDate() == null ||"".equals(shipment.getInvoiceNo()))).collect(Collectors.toList())));}
+                      //  entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
+            );
         }
-            test = test.and((r, q, c) -> r.get("orderStatus").in(Constants.POStatus.getStatusList(requestBody.getStatus() < 5 ? requestBody.getStatus() : 1)));
+        // INITIALLY ADDING FILTER FOR USER-LEVEL
 
-        var x = poMasterRepository.findAll(test);
+        if (requestBody.getManufacturer() != null && !requestBody.getManufacturer().equalsIgnoreCase("")) {
+            if (requestBody.getProductId() != null && requestBody.getProductId() != 0) {
+                x.forEach(po->po.setProductOrderManagerEntity(po.getProductOrderManagerEntity().stream().filter(order -> Objects.equals(order.getProductId(), requestBody.getProductId())).collect(Collectors.toList())));
+            } else {
+                x.forEach(po->po.setProductOrderManagerEntity(po.getProductOrderManagerEntity().stream().filter(order -> Objects.equals(order.getProductDetails().getManufacturer(), requestBody.getManufacturer())).collect(Collectors.toList())));
+            }
+        }
         List<ReportsFilterResponse> response = new ArrayList<>();
 
         x.forEach(po -> {
             po.getProductOrderManagerEntity().forEach(order -> {
                 order.getProductShipmentDetails().forEach(schedule -> {
                     var temp = new ReportsFilterResponse();
-
-                    temp.setPoDate(po.getPoDate());
-                    temp.setPoNumber(po.getPoNumber());
+                    temp.setPoDate(po.getPoDate());//2
+                    temp.setPoNumber(po.getPoNumber());//1
                     temp.setOrderStatus(po.getOrderStatus());
                     temp.setCustomerId(po.getCustomerId());
                     temp.setPoId(po.getId());
-                    temp.setCustomerName(po.getCustomerDetailsEntity().getCustomerName());
-                    temp.setCustomerItemNo(order.getCustomerItemNo());
-                    temp.setManufacturer(order.getProductDetails().getManufacturer());
-                    temp.setMfgItemNumber(order.getProductDetails().getMfgItemNumber());
-                    temp.setPrice(order.getPrice());
+                    temp.setCustomerName(po.getCustomerDetailsEntity().getCustomerName());//3
+                    temp.setCustomerItemNo(order.getCustomerItemNo());//4
+                    temp.setManufacturer(order.getProductDetails().getManufacturer());//6
+                    temp.setMfgItemNumber(order.getProductDetails().getMfgItemNumber());//5
+                    temp.setPrice(order.getPrice());//7
                     temp.setProductOrderId(order.getId());
-                    temp.setScheduleQty(schedule.getScheduleQty());
-                    temp.setPendingQty(schedule.getPendingQty());
-                    temp.setSuppliedQty(schedule.getSuppliedQty());
-                    temp.setPov(schedule.getPov());
-                    temp.setEsplPO(schedule.getEsplPO());
-                    temp.setInvoiceNo(schedule.getInvoiceNo());
-                    temp.setInvoiceDate(schedule.getInvoiceDate());
-                    temp.setCustomerRequestedDate(schedule.getCustomerRequestedDate());
-                    temp.setSupplierDeliveryDate(schedule.getSupplierDeliveryDate());
-                    temp.setRemarks(schedule.getRemarks());
+                    temp.setScheduleQty(schedule.getScheduleQty());//8
+                    temp.setPendingQty(schedule.getPendingQty());//11
+                    temp.setSuppliedQty(schedule.getSuppliedQty());//10
+                    temp.setPov(schedule.getPov());//16
+                    temp.setEsplPO(schedule.getEsplPO());//12
+                    temp.setInvoiceNo(schedule.getInvoiceNo());//14
+                    temp.setInvoiceDate(schedule.getInvoiceDate());//15
+                    temp.setCustomerRequestedDate(schedule.getCustomerRequestedDate());//9
+                    temp.setSupplierDeliveryDate(schedule.getSupplierDeliveryDate());//13
+                    temp.setRemarks(schedule.getRemarks());//17
                     temp.setProductScheduleId(schedule.getId());
                     response.add(temp);
                 });
             });
         });
-
         return response;
     }
 }

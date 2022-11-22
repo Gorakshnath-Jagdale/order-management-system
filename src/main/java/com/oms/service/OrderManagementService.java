@@ -2,10 +2,7 @@ package com.oms.service;
 
 import com.oms.dto.RequestStructure;
 import com.oms.dto.Requester;
-import com.oms.dto.requests.Customer;
-import com.oms.dto.requests.FilteredReportRequest;
-import com.oms.dto.requests.PODetails;
-import com.oms.dto.requests.ScheduleUpdateRequest;
+import com.oms.dto.requests.*;
 import com.oms.dto.responses.PODetailAsList;
 import com.oms.mapper.NewCustomerMapper;
 import com.oms.mapper.PODetailsMapper;
@@ -21,6 +18,7 @@ import com.oms.service.util.Constants;
 import com.oms.service.util.ExcelGeneratorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -246,10 +244,35 @@ var poEntity=poMasterRepository.findByPoNumberIgnoreCaseAndCustomerIdAndUserLeve
 
     }
 
-    public List<PODetailAsList> getAllPurchaseOrder(Requester request) {
-
-
-return poMasterRepository.getPoDetailsByUserLevelOrderByCreatedDateDesc(request.getUserLevel());
+    public List<PODetailAsList> getAllPurchaseOrder(ReportsFilterRequest request,Requester requester) throws Exception {
+        List<PODetailAsList> result=new ArrayList<>();
+        Specification<POMasterEntity> test = Specification.where(null);
+        if (request.getCustomerId() != null && request.getCustomerId() != 0) {
+            test = test.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("customerId"), request.getCustomerId()));
+        }if(request.getFromDate()!=null && request.getToDate()!=null)
+        {
+            if(request.getFromDate().after(request.getToDate())) throw new Exception("From Date can not be greater that to date..");
+            test=test.and((r,q,c)->c.between(r.get("poDate"),request.getFromDate(),request.getToDate()));
+        }
+        test = test.and((r, q, c) -> r.get("orderStatus").in(Constants.POStatus.getStatusList(request.getStatus() < 5 ? request.getStatus() : 1)));
+        test=test.and((r,q,c)-> c.equal(r.get("userLevel"),requester.getUserLevel()));
+        var x = poMasterRepository.findAll(test);
+        if (request.getStatus() == 5) {
+            x.forEach(po->
+            {
+                po.getProductOrderManagerEntity().forEach(order -> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
+                        shipment.getSupplierDeliveryDate() == null).collect(Collectors.toList())));
+                //  entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
+            });
+        } else if (request.getStatus() == 6) {
+            x.forEach(po->
+                    { po.getProductOrderManagerEntity().forEach(order-> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment->
+                            shipment.getSupplierDeliveryDate() != null&& (shipment.getInvoiceDate() == null ||"".equals(shipment.getInvoiceNo()))).collect(Collectors.toList())));}
+                    //entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
+            );
+        }
+x.forEach(p-> result.add(new PODetailAsList(p.getId(), p.getPoNumber(), p.getPoDate(), p.getOrderStatus(), p.getTotalAmount(),p.getCustomerId(),p.getCustomerDetailsEntity().getCustomerName(),p.getCreatedBy(),p.getCreatedDate(),p.getModifiedDate(),p.getPoDocumentName())));
+return result;
     }
 
     public String updateStatus(Long poId,Requester request,String requestedStatus) throws Exception {

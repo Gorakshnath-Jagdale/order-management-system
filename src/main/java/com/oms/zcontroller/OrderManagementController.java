@@ -4,6 +4,7 @@ import com.oms.dto.RequestStructure;
 import com.oms.dto.Requester;
 import com.oms.dto.ResponseStructure;
 import com.oms.dto.requests.FilteredReportRequest;
+import com.oms.dto.requests.ReportsFilterRequest;
 import com.oms.dto.requests.ScheduleUpdateRequest;
 import com.oms.dto.responses.PODetailAsList;
 import com.oms.execeptions.OMSError;
@@ -96,10 +97,10 @@ public class OrderManagementController {
     @PostMapping(
             value = "/getAllPurchaseOrder",
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseStructure<List<PODetailAsList>>> getAllPurchaseOrder(@RequestBody Requester request) {
+    public ResponseEntity<ResponseStructure<List<PODetailAsList>>> getAllPurchaseOrder(@RequestBody RequestStructure<ReportsFilterRequest> request) {
         var response = new ResponseStructure<List<PODetailAsList>>();
         try {
-            response.setResult(orderManagementService.getAllPurchaseOrder(request));
+            response.setResult(orderManagementService.getAllPurchaseOrder(request.getRequest(),request.getRequester()));
         } catch (Exception e) {
             response.setError(new OMSError("WENT-WRONG", e.getMessage()));
         }
