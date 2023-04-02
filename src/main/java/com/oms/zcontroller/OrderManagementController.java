@@ -4,23 +4,19 @@ import com.oms.dto.RequestStructure;
 import com.oms.dto.Requester;
 import com.oms.dto.ResponseStructure;
 import com.oms.dto.requests.FilteredReportRequest;
+import com.oms.dto.requests.PODetails;
 import com.oms.dto.requests.ReportsFilterRequest;
 import com.oms.dto.requests.ScheduleUpdateRequest;
 import com.oms.dto.responses.PODetailAsList;
 import com.oms.execeptions.OMSError;
-import com.oms.pojo.*;
-import com.oms.pojo.requestPojo.GetExcelRequest;
 import com.oms.pojo.requestPojo.GetOrdersByCustomerAndPONumberRequest;
 import com.oms.service.OrderManagementService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import com.oms.dto.requests.PODetails;
-import java.util.Date;
+
 import java.util.List;
 
 @Controller
@@ -65,6 +61,17 @@ public class OrderManagementController {
         try {
             /*SAVE AND UPDATE USE SAME SERVICE METHOD */
             response.setResult(orderManagementService.updateSchedules(request.getRequester() ,request.getRequest()));
+            response.setError(new OMSError("", ""));
+        } catch (Exception e) {
+            response.setError(new OMSError("WENT-WRONG", String.valueOf(e)));
+        }
+        return ResponseEntity.ok(response);
+    }    @PostMapping(value = "/deleteOrderItemDetails", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public  ResponseEntity<ResponseStructure<String>> deleteItemOrderFromPO(@RequestBody RequestStructure<Long> request)  {
+        var response = new ResponseStructure<String>();
+        try {
+            /* Delete */
+            response.setResult(orderManagementService.deleteItemOrderFromPO(request.getRequest(),request.getRequester()));
             response.setError(new OMSError("", ""));
         } catch (Exception e) {
             response.setError(new OMSError("WENT-WRONG", String.valueOf(e)));
@@ -115,25 +122,25 @@ public class OrderManagementController {
     /* SAVE UPDATE PURCHASE ORDER STATUS END */
 
 
-    /* GET REPORTS */
-    @PostMapping(value = "/getReports", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ByteArrayResource> getReports(@RequestBody RequestStructure<GetExcelRequest> request) {
-        var response = new ResponseStructure<CustomerDetailsPojo>();
-        String filename = "Report-"+new Date()+".xlsx";
-
-        try {
-            var file = orderManagementService.getReports(request.getRequest(),request.getRequester());
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-                    .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
-                    .body(file);
-
-        } catch (Exception e) {
-            response.setError(new OMSError("WENT-WRONG", e.getMessage()));
-        }
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType(MediaType.APPLICATION_JSON_VALUE)).body(null);
-    }
+//    /* GET REPORTS */
+//    @PostMapping(value = "/getReports", consumes = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<ByteArrayResource> getReports(@RequestBody RequestStructure<GetExcelRequest> request) {
+//        var response = new ResponseStructure<CustomerDetailsPojo>();
+//        String filename = "Report-"+new Date()+".xlsx";
+//
+//        try {
+//            var file = orderManagementService.getReports(request.getRequest(),request.getRequester());
+//
+//            return ResponseEntity.ok()
+//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+//                    .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+//                    .body(file);
+//
+//        } catch (Exception e) {
+//            response.setError(new OMSError("WENT-WRONG", e.getMessage()));
+//        }
+//        return ResponseEntity.ok().contentType(MediaType.parseMediaType(MediaType.APPLICATION_JSON_VALUE)).body(null);
+//    }
 
     @PostMapping(value = "/getFilteredReport", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseStructure<List<PODetails>>> getFilteredReport(@RequestBody RequestStructure<FilteredReportRequest> request) {

@@ -17,6 +17,7 @@ public class ReportsFilterResponse {
     private String customerItemNo;
     private String manufacturer;
     private String mfgItemNumber;
+    private String productDetails;
     private double price;
     private Long productOrderId;
 
