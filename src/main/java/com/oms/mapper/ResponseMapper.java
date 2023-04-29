@@ -24,17 +24,17 @@ public interface ResponseMapper {
 //     @Mapping(target = "modifiedBy",defaultValue = "Me")
      //@Mapping(target = "customerOrders" ,expression = "java(OrderManagerEntityMapper(customerDetails.getCustomerOrders()))")
     CustomerDetailsEntity customerDetailsEntityMapper(CustomerDetailsPojo customerDetails);
-
-   default List<ProductOrderManagerEntity> OrderManagerEntityMapper(List<ProductOrderManagerEntity> orderManagerEntities){
-       orderManagerEntities.forEach(x->{
-                    x.setCreatedBy("me");
-                    x.setCreatedDate(new Date());
-                    x.setModifiedDate(new Date());
-                    x.setModifiedBy("Me");
-                }
-                );
-        return orderManagerEntities;
-    }
+//
+//   default List<ProductOrderManagerEntity> OrderManagerEntityMapper(List<ProductOrderManagerEntity> orderManagerEntities){
+//       orderManagerEntities.forEach(x->{
+//                    x.setCreatedBy("me");
+//                    x.setCreatedDate(new Date());
+//                    x.setModifiedDate(new Date());
+//                    x.setModifiedBy("Me");
+//                }
+//                );
+//        return orderManagerEntities;
+//    }
 
 //    List<OrderDetailsResponse> orderListMapper(List<ProductOrderManagerEntity> orderManagerEntities);
 //

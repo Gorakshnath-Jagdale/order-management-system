@@ -2,12 +2,7 @@ package com.oms.dto.responses;
 
 
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
-import javax.persistence.Column;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -28,7 +23,7 @@ public class PODetailAsList {
     public PODetailAsList(){
 
     }
-    public PODetailAsList(Long id,String poNumber,Date poDate,String orderStatus,double totalAmount,Long customerId,String customerName,String createdBy,Date createdDate,Date modifiedDate,String poDocumentName)
+    public PODetailAsList(Long id,String poNumber,Date poDate,String orderStatus,double totalAmount,Long customerId,String customerName,Integer createdBy,Date createdDate,Date modifiedDate,String poDocumentName)
     {
         this.id=id;
         this.poDate=getMyDate(poDate);
@@ -37,7 +32,7 @@ public class PODetailAsList {
         this.totalAmount=totalAmount;
         this.customerId=customerId;
         this.customerName=customerName;
-        this.createdBy=createdBy;
+        this.createdBy= String.valueOf(createdBy);
         this.createdDate=getMyDate(createdDate);
          this.modifiedDate=getMyDate(modifiedDate);
          this.poDocumentName=poDocumentName;

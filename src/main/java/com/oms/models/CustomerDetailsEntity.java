@@ -42,7 +42,7 @@ public class CustomerDetailsEntity {
     private int paymentTerm;
 
     @Column(name = "CREATED_BY")
-    private String createdBy;
+    private Integer createdBy;
 
     @CreatedDate
     @Column(name = "CREATED_DATE")
@@ -50,7 +50,7 @@ public class CustomerDetailsEntity {
     private Date createdDate;
 
     @Column(name = "MODIFIED_BY")
-    private String modifiedBy;
+    private Integer modifiedBy;
 
     @LastModifiedDate
     @Column(name = "MODIFIED_DATE")

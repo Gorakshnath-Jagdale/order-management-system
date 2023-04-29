@@ -9,7 +9,7 @@ import com.oms.dto.requests.ReportsFilterRequest;
 import com.oms.dto.requests.ScheduleUpdateRequest;
 import com.oms.dto.responses.PODetailAsList;
 import com.oms.execeptions.OMSError;
-import com.oms.pojo.requestPojo.GetOrdersByCustomerAndPONumberRequest;
+import com.oms.pojo.requestPojo.GetOrdersByPOIdRequest;
 import com.oms.service.OrderManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -92,10 +92,10 @@ public class OrderManagementController {
     @PostMapping(
             value = "/getPurchaseOrder",
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseStructure<PODetails>> getAllOrderByCustomerIdAndPONumber(@RequestBody RequestStructure<GetOrdersByCustomerAndPONumberRequest> request) {
+    public ResponseEntity<ResponseStructure<PODetails>> getAllOrderByCustomerIdAndPONumber(@RequestBody RequestStructure<GetOrdersByPOIdRequest> request) {
         var response = new ResponseStructure<PODetails>();
         try {
-            response.setResult(orderManagementService.getAllOrderByCustomerIdAndPONumber(request.getRequest(),request.getRequester()));
+            response.setResult(orderManagementService.getPurchaseOrderById(request.getRequest(),request.getRequester()));
         } catch (Exception e) {
             response.setError(new OMSError("WENT-WRONG", e.getMessage()));
         }

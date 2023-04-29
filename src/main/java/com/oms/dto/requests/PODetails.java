@@ -17,7 +17,7 @@ public class PODetails {
     private String poNumber;
     private double totalAmount;
     private String orderStatus;
-    private int userLevel;
+   // private int userLevel;
     private Customer customerDetailsEntity;
     private List<ProductOrderManager> productOrderManagerEntity;
 

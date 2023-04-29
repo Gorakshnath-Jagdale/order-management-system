@@ -49,7 +49,7 @@ public class ProductOrderManagerEntity {
 //    private String orderStatus;
 
     @Column(name = "CREATED_BY")
-    private String createdBy;
+    private Integer createdBy;
 
 
     @Column(name = "CREATED_DATE")
@@ -57,7 +57,7 @@ public class ProductOrderManagerEntity {
     private Date createdDate;
 
     @Column(name = "MODIFIED_BY")
-    private String modifiedBy;
+    private Integer modifiedBy;
 
 
     @Column(name = "MODIFIED_DATE")

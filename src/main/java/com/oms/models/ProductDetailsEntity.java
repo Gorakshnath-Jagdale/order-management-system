@@ -28,7 +28,7 @@ public class ProductDetailsEntity {
     private String productDetails;
 
     @Column(name = "CREATED_BY")
-    private String createdBy;
+    private Integer createdBy;
 
     @CreatedDate
     @Column(name = "CREATED_DATE")
@@ -36,7 +36,7 @@ public class ProductDetailsEntity {
     private Date createdDate;
 
     @Column(name = "MODIFIED_BY")
-    private String modifiedBy;
+    private Integer modifiedBy;
 
     @LastModifiedDate
     @Column(name = "MODIFIED_DATE")

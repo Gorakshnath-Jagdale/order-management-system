@@ -56,7 +56,7 @@ public class ProductShipmentManagerEntity {
     private Date invoiceDate;
 
     @Column(name = "CREATED_BY")
-    private String createdBy;
+    private Integer createdBy;
 
 
     @Column(name = "CREATED_DATE")
@@ -64,7 +64,7 @@ public class ProductShipmentManagerEntity {
     private Date createdDate;
 
     @Column(name = "MODIFIED_BY")
-    private String modifiedBy;
+    private Integer modifiedBy;
 
     @LastModifiedDate
     @Column(name = "MODIFIED_DATE")

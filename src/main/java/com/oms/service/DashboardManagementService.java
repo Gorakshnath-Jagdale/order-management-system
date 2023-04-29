@@ -17,13 +17,13 @@ private final POMasterRepository poMasterRepository;
 public DashboardResponse getDashboardStatus(Requester requester)
 {
     DashboardResponse response=new DashboardResponse();
-    response.setCompletedPurchaseOrder(poMasterRepository.countByOrderStatusIgnoreCaseAndUserLevel(Constants.POStatus.COMPLETED_PO, requester.getUserLevel()));
-    response.setActivePurchaseOrders(poMasterRepository.countByOrderStatusIgnoreCaseAndUserLevel(Constants.POStatus.ACTIVE_PO, requester.getUserLevel()));
-    response.setPendingSDDCount(poMasterRepository.countByOrderStatusAndUserLevelAndProductOrderManagerEntity_ProductShipmentDetails_SupplierDeliveryDateNull(Constants.POStatus.ACTIVE_PO,requester.getUserLevel()));
+    response.setCompletedPurchaseOrder(poMasterRepository.countByOrderStatusIgnoreCase(Constants.POStatus.COMPLETED_PO));
+    response.setActivePurchaseOrders(poMasterRepository.countByOrderStatusIgnoreCase(Constants.POStatus.ACTIVE_PO));
+    response.setPendingSDDCount(poMasterRepository.countByOrderStatusAndProductOrderManagerEntity_ProductShipmentDetails_SupplierDeliveryDateNull(Constants.POStatus.ACTIVE_PO));
     Calendar cal = Calendar.getInstance();
     cal.setTime(new Date());
     cal.add(Calendar.DAY_OF_MONTH,30);
-    response.setPendingInvoiceFor30Day(poMasterRepository.countByOrderStatusAndUserLevelAndProductOrderManagerEntity_ProductShipmentDetails_SupplierDeliveryDateLessThanEqualAndProductOrderManagerEntity_ProductShipmentDetails_InvoiceNoIsIgnoreCaseAndProductOrderManagerEntity_ProductShipmentDetails_InvoiceDateNull(Constants.POStatus.ACTIVE_PO,requester.getUserLevel(),cal.getTime(),""));
+    response.setPendingInvoiceFor30Day(poMasterRepository.countByOrderStatusAndProductOrderManagerEntity_ProductShipmentDetails_SupplierDeliveryDateLessThanEqualAndProductOrderManagerEntity_ProductShipmentDetails_InvoiceNoIsIgnoreCaseAndProductOrderManagerEntity_ProductShipmentDetails_InvoiceDateNull(Constants.POStatus.ACTIVE_PO,cal.getTime(),""));
 return response;
 }
 }

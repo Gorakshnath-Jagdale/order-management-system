@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 @Service
@@ -42,7 +43,7 @@ public class DocumentManagementService {
 //           throw new Exception("File not found");
 //       }
 
-       // this.storageLocation = Paths.get("C:\\Users\\GORAKSHNATH\\Documents\\Custom Office Templates").toAbsolutePath().normalize();
+        this.storageLocation = Paths.get("C:\\Users\\GORAKSHNATH\\Documents\\Custom Office Templates").toAbsolutePath().normalize();
         Path filePath = storageLocation.resolve(fileName).normalize();
         Resource resource = new UrlResource(filePath.toUri());
         if (resource.exists()) {
@@ -54,7 +55,7 @@ public class DocumentManagementService {
 
     public String uploadFile(MultipartFile file,Long poId) {
 //Noramlize file name
-        String fileName= StringUtils.cleanPath(file.getOriginalFilename());
+        String fileName= StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         try{
             //cheke it the file's name contains invalid characters
             if (fileName.contains("..")){

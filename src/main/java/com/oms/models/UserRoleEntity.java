@@ -14,29 +14,21 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-@Table(schema = "OMS_ADVANCE", name = "USER_DETAILS")
-public class UserDetailsEntity {
+@Table(schema = "OMS_ADVANCE", name = "USER_ROLE")
+public class UserRoleEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "USER_ID", nullable = false)
-    private Long id;
-    @Column(name = "USER_FIRST_NAME", nullable = false)
-    private String userFirstName;
-    @Column(name = "USER_LAST_NAME", nullable = false)
-    private String userLastName;
-    @Column(name = "SUPERVISOR_USER_ID", nullable = false)
-    private Integer supervisorId;
-    @Column(name = "LOGIN_ID", nullable = false)
-    private String loginId;
-    @Column(name = "CONTACT_NUMBER", nullable = false)
-    private String contactNumber;
-    @Column(name = "USER_PASS", nullable = false)
-    private String userPass;
-    @Column(name = "IS_ACTIVE_USER", nullable = false)
-    private boolean activeUser;
+    @Column(name = "ROLE_ID", nullable = false)
+    private Long roleId;
+    @Column(name = "ROLE_NAME", nullable = false)
+    private String roleName;
+    @Column(name = "ROLE_DETAILS", nullable = false)
+    private String roleDetails;
+
+    @Column(name = "IS_ROLE_ACTIVE", nullable = false)
+    private boolean activeRole;
    // @Column(name = "USER_LEVEL", nullable = false)
    // private int userLevel;
-
     @Column(name = "CREATED_BY_USER_ID")
     private Integer createdBy;
 
@@ -57,8 +49,8 @@ public class UserDetailsEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        UserDetailsEntity that = (UserDetailsEntity) o;
-        return id != null && Objects.equals(id, that.id);
+        UserRoleEntity that = (UserRoleEntity) o;
+        return  roleId!= null && Objects.equals(roleId, that.roleId);
     }
 
     @Override

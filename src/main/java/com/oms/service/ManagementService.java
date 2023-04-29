@@ -9,6 +9,7 @@ import com.oms.mapper.response.ProductMapper;
 import com.oms.models.repository.CustomerDetailsRepository;
 import com.oms.models.repository.POMasterRepository;
 import com.oms.models.repository.ProductDetailsRepository;
+import com.oms.models.repository.UserDetailsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -19,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -29,12 +31,13 @@ public class ManagementService {
     private final CustomerMapper customerMapper;
     private final ProductMapper productMapper;
     private final POMasterRepository poMasterRepository;
+    private final UserDetailsRepository userDetailsRepository;
 
     public Customer createCustomer(Customer customer,int requesterUserId) throws Exception {
       if(customer!=null)
       {
-          var customerToSave= customerMapper.customerToCustomerDetailsEntity(customer);
-          customerToSave.setCreatedBy(String.valueOf(requesterUserId));
+          var customerToSave= customerMapper.customerToCustomerDetailsEntity(customer,Long.parseLong(String.valueOf(requesterUserId)));
+          customerToSave.setCreatedBy(requesterUserId);
           customerToSave.setCreatedDate(new Date());
           var savedCustomer= customerDetailsRepository.save(customerToSave);
           return customerMapper.customerDetailsEntityToCustomer(savedCustomer);
@@ -47,8 +50,8 @@ public class ManagementService {
 if(customerDetailsRepository.existsById(customer.getId()))
 {
     var customerToUpdate=customerDetailsRepository.getById(customer.getId());
-    customerMapper.updateCustomerToCustomerDetailsEntity(customerToUpdate,customer);
-    customerToUpdate.setModifiedBy(String.valueOf(requesterUserId));
+    customerMapper.updateCustomerToCustomerDetailsEntity(customerToUpdate,customer,Long.parseLong(String.valueOf(requesterUserId)));
+    customerToUpdate.setModifiedBy(requesterUserId);
     customerToUpdate.setModifiedDate(new Date());
     var updatedCustomer=customerDetailsRepository.save(customerToUpdate);
     return customerMapper.customerDetailsEntityToCustomer(updatedCustomer);
@@ -75,9 +78,7 @@ if(customerDetailsRepository.existsById(customer.getId()))
     public Product createProduct(Product request, int requesterUserId) throws Exception {
         if(request!=null)
         {
-            var productToSave= productMapper.productToProductDetailsEntity(request);
-            productToSave.setCreatedBy(String.valueOf(requesterUserId));
-            productToSave.setCreatedDate(new Date());
+            var productToSave= productMapper.productToProductDetailsEntity(request,requesterUserId);
             var savedCustomer= productDetailsRepository.save(productToSave);
             return productMapper.ProductDetailsEntityToProduct(productToSave);
         }else
@@ -90,14 +91,13 @@ if(customerDetailsRepository.existsById(customer.getId()))
         if(productDetailsRepository.existsById(request.getId()))
         {
             var productToUpdate=productDetailsRepository.getById(request.getId());
-            productMapper.updateProductToProductDetailsEntity(productToUpdate,request);
-            productToUpdate.setModifiedBy(String.valueOf(requesterUserId));
-            productToUpdate.setModifiedDate(new Date());
+            productMapper.updateProductToProductDetailsEntity(productToUpdate,request,requesterUserId);
+
             var updatedCustomer=productDetailsRepository.save(productToUpdate);
             return productMapper.ProductDetailsEntityToProduct(updatedCustomer);
         }else
         {
-            throw new Exception("Customer not found to update");
+            throw new Exception("Product not found to update");
         }
     }
 
@@ -107,7 +107,7 @@ if(customerDetailsRepository.existsById(customer.getId()))
             return productMapper.ProductDetailsEntityToProduct(product.get());
         }else
         {
-            throw new Exception("customer Not found");
+            throw new Exception("Product Not found");
         }
     }
 
@@ -125,5 +125,9 @@ if(customerDetailsRepository.existsById(customer.getId()))
         return productDetailsRepository.findAllManufacturer();
     }
 
-
+public String getFirstNameAndLastName(long userId)
+{
+    var user=userDetailsRepository.getById(userId);
+    return user.getUserFirstName()+" "+user.getUserLastName();
+}
 }

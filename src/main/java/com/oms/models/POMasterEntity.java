@@ -36,14 +36,14 @@ public class POMasterEntity {
     @Column(name = "TOTAL_AMOUNT", nullable = false)
     private double totalAmount;
 
-    @Column(name = "USER_LEVEL", nullable = false)
-    private int userLevel;
+//    @Column(name = "USER_LEVEL", nullable = false)
+//    private int userLevel;
 
     @Column(name="PO_DOCUMENT_NAME")
     private String poDocumentName;
 
     @Column(name = "CREATED_BY")
-    private String createdBy;
+    private Integer createdBy;
 
     @CreatedDate
     @Column(name = "CREATED_DATE")
@@ -51,7 +51,7 @@ public class POMasterEntity {
     private Date createdDate;
 
     @Column(name = "MODIFIED_BY")
-    private String modifiedBy;
+    private Integer modifiedBy;
 
     @LastModifiedDate
     @Column(name = "MODIFIED_DATE")

@@ -3,9 +3,8 @@ package com.oms.zcontroller;
 import com.oms.dto.ResponseStructure;
 import com.oms.pojo.*;
 import com.oms.pojo.requestPojo.GetExcelRequest;
-import com.oms.pojo.requestPojo.GetOrdersByCustomerAndPONumberRequest;
+import com.oms.pojo.requestPojo.GetOrdersByPOIdRequest;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,7 +18,7 @@ public interface IntOrderManagementController {
 //    ResponseEntity <ResponseStructure<List<OrderDetailsResponse>>> getAllOrderWithFilter(@RequestBody GetALLOrderFiltersRequest request);
     ResponseEntity<ResponseStructure<List<ProductOrderManagerPojo>>> getAllOrder();//stopped using
     ResponseEntity<ResponseStructure<List<Customers>>> getAllCustomers();
-    ResponseEntity<ResponseStructure<CustomerDetailsResponsePojo>> getAllOrderByCustomerIdAndPONumber( GetOrdersByCustomerAndPONumberRequest request);
+    ResponseEntity<ResponseStructure<CustomerDetailsResponsePojo>> getAllOrderByCustomerIdAndPONumber( GetOrdersByPOIdRequest request);
     ResponseEntity<ResponseStructure<List<ProductDetails>>> getAllProducts();
     ResponseEntity<ResponseStructure<List<PODetails>>> getAllPOList();
     ResponseEntity<ResponseStructure<List<PODetails>>> getPODetails(@RequestParam("poNumber")String poNumber);

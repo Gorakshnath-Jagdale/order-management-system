@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class ReportsService {
     private final POMasterRepository poMasterRepository;
     private final ExcelGeneratorService excelGeneratorService;
+    private final UserManagementService userManagementService;
 
     public List<ReportsFilterResponse> getFilteredOrderDetails(RequestStructure<ReportsFilterRequest> request) throws Exception {
         var requestBody = request.getRequest();
@@ -38,7 +39,7 @@ public class ReportsService {
             test=test.and((r,q,c)->c.between(r.get("poDate"),requestBody.getFromDate(),requestBody.getToDate()));
         }
         test = test.and((r, q, c) -> r.get("orderStatus").in(Constants.POStatus.getStatusList(requestBody.getStatus() < 5 ? requestBody.getStatus() : 1)));
-        test=test.and((r,q,c)-> c.equal(r.get("userLevel"),request.getRequester().getUserLevel()));
+        test = test.and((r, q, c) -> r.get("createdBy").in(userManagementService.getTeamMemberList(request.getRequester().getUserId())));
         var x = poMasterRepository.findAll(test);
 
 
@@ -114,7 +115,7 @@ public class ReportsService {
             test=test.and((r,q,c)->c.between(r.get("poDate"),requestBody.getFromDate(),requestBody.getToDate()));
         }
         test = test.and((r, q, c) -> r.get("orderStatus").in(Constants.POStatus.getStatusList(requestBody.getStatus() < 5 ? requestBody.getStatus() : 1)));
-        test=test.and((r,q,c)-> c.equal(r.get("userLevel"),request.getRequester().getUserLevel()));
+        test = test.and((r, q, c) -> r.get("createdBy").in(userManagementService.getTeamMemberList(request.getRequester().getUserId())));
         var x = poMasterRepository.findAll(test);
 
 

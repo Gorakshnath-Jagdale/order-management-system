@@ -11,7 +11,7 @@ import com.oms.models.ProductShipmentManagerEntity;
 import com.oms.models.repository.POMasterRepository;
 import com.oms.models.repository.ProductOrderManagerRepository;
 import com.oms.models.repository.ProductShipmentManagerRepository;
-import com.oms.pojo.requestPojo.GetOrdersByCustomerAndPONumberRequest;
+import com.oms.pojo.requestPojo.GetOrdersByPOIdRequest;
 import com.oms.service.util.Constants;
 import com.oms.service.util.ExcelGeneratorService;
 import lombok.RequiredArgsConstructor;
@@ -32,12 +32,16 @@ public class OrderManagementService {
     private final POMasterRepository poMasterRepository;
     private final PODetailsMapper poDetailsMapper;
     private final ProductOrderMapper productOrderMapper;
+    private final ManagementService managementService;
+    private final UserManagementService userManagementService;
 
     @Transactional
     public PODetails saveNewOrderDetails(PODetails poDetails, Requester requester) throws Exception {
+        //Validate user first
+
         var customerDetails = poDetails.getCustomerDetailsEntity();
         var poOrders = productOrderMapper.productOrderListToProductOrderManagerEntityList(poDetails.getProductOrderManagerEntity());
-        if (customerDetails == null || CollectionUtils.isEmpty(poOrders) /*|| poDetails.getId()!=null*/ || poDetails.getPoNumber() == null) {
+        if (customerDetails == null || CollectionUtils.isEmpty(poDetails.getProductOrderManagerEntity()) /*|| poDetails.getId()!=null*/ || poDetails.getPoNumber() == null) {
             throw new Exception("Invalid request");
         }
         //IF PO ID IS NULL THEN ITS NEW ORDERS
@@ -48,20 +52,26 @@ public class OrderManagementService {
                     order.setPoId(po.getId());
                     order.setCustomerId(customerDetails.getId());
                     if (order.getId() == null) {
-                        order.setCreatedBy(String.valueOf(requester.getUserId()));
+                        order.setCreatedBy(requester.getUserId());
                     } else {
+                        //If requester is creator of current PO or he/she is supervisor/manager
+
                         var orderPersisted = productOrderManagerRepository.findById(order.getId());
                         if (orderPersisted.isPresent()) {
                             var test = orderPersisted.get();
                             order.setPoId(test.getPoId());
                             order.setCreatedDate(test.getCreatedDate());
                             order.setCreatedBy(test.getCreatedBy());
-                            order.setModifiedBy(String.valueOf(requester.getUserId()));
+                            order.setModifiedBy((requester.getUserId()));
+                            order.getProductShipmentDetails().forEach(x -> {
+                                x.setCreatedBy(x.getCreatedBy() == null || x.getCreatedBy() == 0 ? requester.getUserId() : x.getCreatedBy());
+                                x.setModifiedBy(x.getId() != null ? requester.getUserId() : null);
+                            });
                         }
                     }
                 }
         );
-        var savedOrders=productOrderManagerRepository.saveAll(poOrders);
+        var savedOrders = productOrderManagerRepository.saveAll(poOrders);
         poDetails.setProductOrderManagerEntity(productOrderMapper.productOrderEntityListToProductOrderManagerList(savedOrders));
         poDetails.setId(po.getId());
         return poDetails;
@@ -71,61 +81,68 @@ public class OrderManagementService {
     public String updateSchedules(Requester requester, ScheduleUpdateRequest request) {
         var orderPersisted = productOrderManagerRepository.findById(request.getProductOrderId());
 
-                        if (orderPersisted.isPresent()) {
-                            var test = orderPersisted.get();
-                            orderPersisted.get().setPoId(test.getPoId());
-                            orderPersisted.get().setCreatedDate(test.getCreatedDate());
-                            orderPersisted.get().setCreatedBy(test.getCreatedBy());
-                            orderPersisted.get().setModifiedBy(String.valueOf(requester.getUserId()));
+        if (orderPersisted.isPresent()) {
+            var test = orderPersisted.get();
+            orderPersisted.get().setPoId(test.getPoId());
+            orderPersisted.get().setCreatedDate(test.getCreatedDate());
+            orderPersisted.get().setCreatedBy(test.getCreatedBy());
+            orderPersisted.get().setModifiedBy(requester.getUserId());
 
-                            if(request.getProductShipmentManager().getId()!=null)
-                            {
-                               var schedule= productShipmentManagerRepository.getById(request.getProductShipmentManager().getId());
-                                schedule.setScheduleQty(request.getProductShipmentManager().getScheduleQty());
-                                schedule.setSuppliedQty(request.getProductShipmentManager().getSuppliedQty());
-                                schedule.setPendingQty(request.getProductShipmentManager().getPendingQty());
-                                schedule.setEsplPO(request.getProductShipmentManager().getEsplPO());
-                                schedule.setInvoiceNo(request.getProductShipmentManager().getInvoiceNo());
-                                schedule.setInvoiceDate(request.getProductShipmentManager().getInvoiceDate());
-                                schedule.setSupplierDeliveryDate(request.getProductShipmentManager().getSupplierDeliveryDate());
-                                schedule.setPov(request.getProductShipmentManager().getPov());
-                                schedule.setModifiedBy(String.valueOf(requester.getUserId()));
-                                productShipmentManagerRepository.save(schedule);
-                            }else
-                            {
-                                request.getProductShipmentManager().setCreatedBy(String.valueOf(requester.getUserId()));
-                                orderPersisted.get().getProductShipmentDetails().add(productOrderMapper.ProductShipmentToProductShipmentManagerEntity(request.getProductShipmentManager()));
-                                var savedOrders=productOrderManagerRepository.save(orderPersisted.get());
-                            }
+            if (request.getProductShipmentManager().getId() != null) {
+                var schedule = productShipmentManagerRepository.getById(request.getProductShipmentManager().getId());
+                schedule.setScheduleQty(request.getProductShipmentManager().getScheduleQty());
+                schedule.setSuppliedQty(request.getProductShipmentManager().getSuppliedQty());
+                schedule.setPendingQty(request.getProductShipmentManager().getPendingQty());
+                schedule.setEsplPO(request.getProductShipmentManager().getEsplPO());
+                schedule.setInvoiceNo(request.getProductShipmentManager().getInvoiceNo());
+                schedule.setInvoiceDate(request.getProductShipmentManager().getInvoiceDate());
+                schedule.setSupplierDeliveryDate(request.getProductShipmentManager().getSupplierDeliveryDate());
+                schedule.setPov(request.getProductShipmentManager().getPov());
+                schedule.setModifiedBy(requester.getUserId());
+                productShipmentManagerRepository.save(schedule);
+            } else {
+                request.getProductShipmentManager().setCreatedBy(String.valueOf(requester.getUserId()));
+                orderPersisted.get().getProductShipmentDetails().add(productOrderMapper.ProductShipmentToProductShipmentManagerEntity(request.getProductShipmentManager()));
+                var savedOrders = productOrderManagerRepository.save(orderPersisted.get());
+            }
 
-                        }
+        }
 
 
-                    return "success";
+        return "success";
     }
-public  String deleteItemOrderFromPO(Long productOrderId,Requester requester) throws Exception {
-   if( productOrderManagerRepository.existsByIdAndPoMasterEntity_UserLevel(productOrderId,requester.getUserLevel())){
-       productOrderManagerRepository.deleteById(productOrderId);
-   }else
-   {
-       throw new Exception("Not found this item / not accessible.");
-   }
-   return "success";
-}
+
+    public String deleteItemOrderFromPO(Long productOrderId, Requester requester) throws Exception {
+        validateUserAccessForProductOrder(requester.getUserId(),productOrderId);
+        if (productOrderManagerRepository.existsById(productOrderId)) {
+            productOrderManagerRepository.deleteById(productOrderId);
+        } else {
+            throw new Exception("Not found this item / not accessible.");
+        }
+        return "success";
+    }
 
     private POMasterEntity updatePODetails(Long poId, String poNumber, String status, Date poDate,
-                                           Customer customer, double totalAmount, Requester requester) {
+                                           Customer customer, double totalAmount, Requester requester) throws Exception {
         POMasterEntity po;
+
+
         if (poId == null) {
             po = new POMasterEntity();
-            po.setUserLevel(requester.getUserLevel());
-            po.setCreatedBy(String.valueOf(requester.getUserId()));
+            po.setCreatedBy(requester.getUserId());
         } else {
+            //Add check while update operation if modifier is same as creator of PO or supervisor/manager
             po = poMasterRepository.getById(poId);
-            po.setModifiedBy(String.valueOf(requester.getUserId()));
-        }  Calendar cal = Calendar.getInstance();
+            po.setModifiedBy(requester.getUserId());
+        }
+        if (requester.getUserId() != po.getCreatedBy() || !userManagementService.getMangerAndSupervisor(po.getCreatedBy()).contains(requester.getUserId())) {
+            //throw invalid request
+            throw new Exception("Invalid user request");
+        }
+
+        Calendar cal = Calendar.getInstance();
         cal.setTime(poDate);
-        cal.add(Calendar.DAY_OF_MONTH,customer.getPaymentTerm());
+        cal.add(Calendar.DAY_OF_MONTH, customer.getPaymentTerm());
         po.setOrderStatus(status);
         po.setPoDate(poDate);
         po.setPoNumber(poNumber.trim());
@@ -135,7 +152,7 @@ public  String deleteItemOrderFromPO(Long productOrderId,Requester requester) th
         return poMasterRepository.save(po);
     }
 
-//    private List<ProductOrderManagerEntity> SaveOrUpdateShipments(List<ProductOrderManagerEntity> orderManagerEntities) {
+    //    private List<ProductOrderManagerEntity> SaveOrUpdateShipments(List<ProductOrderManagerEntity> orderManagerEntities) {
 //        return productOrderManagerRepository.saveAll(orderManagerEntities);
 //    }
 //
@@ -231,100 +248,119 @@ public  String deleteItemOrderFromPO(Long productOrderId,Requester requester) th
 //        return list;
 //    }
 //
-    public PODetails getAllOrderByCustomerIdAndPONumber(GetOrdersByCustomerAndPONumberRequest request,Requester requester) throws Exception {
-var poEntity=poMasterRepository.findByPoNumberIgnoreCaseAndCustomerIdAndUserLevel(request.getPoNumber(),request.getCustomerId(),requester.getUserLevel());
-      if(poEntity.isPresent())
-      {
-          poEntity.get().getProductOrderManagerEntity().forEach(order-> order.getProductShipmentDetails().sort(Comparator.comparing(ProductShipmentManagerEntity::getCustomerRequestedDate)));
-          return poDetailsMapper.poDetailsPOJOMapper(poEntity.get());
-      }
-      else
-      {
-          throw new Exception("Record not found !!");
-      }
+    public PODetails getPurchaseOrderById(GetOrdersByPOIdRequest request, Requester requester) throws Exception {
+
+        validateUserAccess(requester.getUserId(),request.getPoId());
+        var poEntity = poMasterRepository.findById(request.getPoId());
+        if (poEntity.isPresent()) {
+            poEntity.get().getProductOrderManagerEntity().forEach(order -> order.getProductShipmentDetails().sort(Comparator.comparing(ProductShipmentManagerEntity::getCustomerRequestedDate)));
+            return poDetailsMapper.poDetailsPOJOMapper(poEntity.get());
+        } else {
+            throw new Exception("Record not found !!");
+        }
 
     }
 
-    public List<PODetailAsList> getAllPurchaseOrder(ReportsFilterRequest request,Requester requester) throws Exception {
-        List<PODetailAsList> result=new ArrayList<>();
+    public List<PODetailAsList> getAllPurchaseOrder(ReportsFilterRequest request, Requester requester) throws Exception {
+        if(!userManagementService.validateUser(requester.getUserId())) throw new Exception("Invalid user request!");
+        List<PODetailAsList> result = new ArrayList<>();
         Specification<POMasterEntity> test = Specification.where(null);
         if (request.getCustomerId() != null && request.getCustomerId() != 0) {
             test = test.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("customerId"), request.getCustomerId()));
-        }if(request.getFromDate()!=null && request.getToDate()!=null)
-        {
-            if(request.getFromDate().after(request.getToDate())) throw new Exception("From Date can not be greater that to date..");
-            test=test.and((r,q,c)->c.between(r.get("poDate"),request.getFromDate(),request.getToDate()));
+        }
+        if (request.getFromDate() != null && request.getToDate() != null) {
+            if (request.getFromDate().after(request.getToDate()))
+                throw new Exception("From Date can not be greater that to date..");
+            test = test.and((r, q, c) -> c.between(r.get("poDate"), request.getFromDate(), request.getToDate()));
         }
         test = test.and((r, q, c) -> r.get("orderStatus").in(Constants.POStatus.getStatusList(request.getStatus() < 5 ? request.getStatus() : 1)));
-        test=test.and((r,q,c)-> c.equal(r.get("userLevel"),requester.getUserLevel()));
+        test = test.and((r, q, c) -> r.get("createdBy").in(userManagementService.getTeamMemberList(requester.getUserId())));
         var x = poMasterRepository.findAll(test);
         if (request.getStatus() == 5) {
-            x.forEach(po->
+            x.forEach(po ->
             {
                 po.getProductOrderManagerEntity().forEach(order -> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
                         shipment.getSupplierDeliveryDate() == null).collect(Collectors.toList())));
                 //  entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
             });
         } else if (request.getStatus() == 6) {
-            x.forEach(po->
-                    { po.getProductOrderManagerEntity().forEach(order-> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment->
-                            shipment.getSupplierDeliveryDate() != null&& (shipment.getInvoiceDate() == null ||"".equals(shipment.getInvoiceNo()))).collect(Collectors.toList())));}
+            x.forEach(po ->
+                    {
+                        po.getProductOrderManagerEntity().forEach(order -> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
+                                shipment.getSupplierDeliveryDate() != null && (shipment.getInvoiceDate() == null || "".equals(shipment.getInvoiceNo()))).collect(Collectors.toList())));
+                    }
                     //entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
             );
         }
-x.forEach(p-> result.add(new PODetailAsList(p.getId(), p.getPoNumber(), p.getPoDate(), p.getOrderStatus(), p.getTotalAmount(),p.getCustomerId(),p.getCustomerDetailsEntity().getCustomerName(),p.getCreatedBy(),p.getCreatedDate(),p.getModifiedDate(),p.getPoDocumentName())));
-return result;
+
+        x.forEach(p -> result.add(new PODetailAsList(p.getId(), p.getPoNumber(), p.getPoDate(), p.getOrderStatus(), p.getTotalAmount(), p.getCustomerId(), p.getCustomerDetailsEntity().getCustomerName(), p.getCreatedBy(), p.getCreatedDate(), p.getModifiedDate(), p.getPoDocumentName())));
+        result.forEach(m -> m.setCreatedBy(managementService.getFirstNameAndLastName(Long.parseLong(m.getCreatedBy()))));
+        return result;
     }
 
-    public String updateStatus(Long poId,Requester request,String requestedStatus) throws Exception {
+    public String updateStatus(Long poId, Requester requester, String requestedStatus) throws Exception {
         String status;
-        switch (requestedStatus)
-        {
+        switch (requestedStatus) {
             case "cancel":
-                status=Constants.POStatus.CANCEL_PO;
+                status = Constants.POStatus.CANCEL_PO;
                 break;
             case "amend":
-                status=Constants.POStatus.AMENDED_PO;
+                status = Constants.POStatus.AMENDED_PO;
                 break;
             case "complete":
-                status=Constants.POStatus.COMPLETED_PO;
+                status = Constants.POStatus.COMPLETED_PO;
                 break;
             case "active":
-                status=Constants.POStatus.ACTIVE_PO;
+                status = Constants.POStatus.ACTIVE_PO;
                 break;
             default:
                 throw new Exception("InvalidRequest");
         }
-        if(poMasterRepository.existsByUserLevelAndId(request.getUserLevel(), poId))
-        {
-            var po=poMasterRepository.getById(poId);
+        if (poMasterRepository.existsById(poId)) {
+            var po = poMasterRepository.getById(poId);
+            validateUserAccess(requester.getUserId(), poId);
             po.setOrderStatus(status);
             poMasterRepository.save(po);
             return "Status Updated";
-        }else
-        {
+        } else {
             throw new Exception("PO does not exist");
         }
     }
 
     public List<PODetails> getFilteredReport(RequestStructure<FilteredReportRequest> request) {
-        var req=request.getRequest();
+        var req = request.getRequest();
         List<POMasterEntity> poMasterEntities = new ArrayList<>();
-        var statusList=req.getStatus()==null||req.getStatus().size()==0?Constants.POStatus.getStatusList(5):req.getStatus();
-        if(req.getCustomer()!=null&&req.getMfgItem()!=null)
-        {
-            poMasterEntities= poMasterRepository.findByOrderStatusInAndUserLevelAndCustomerIdAndProductOrderManagerEntity_ProductId(statusList,request.getRequester().getUserLevel(),req.getCustomer(),req.getMfgItem());
-        }else if(req.getCustomer()!=null){
-            poMasterEntities=  poMasterRepository.findByOrderStatusInAndUserLevelAndCustomerId(statusList,request.getRequester().getUserLevel(),req.getCustomer());
-        }else if(req.getMfgItem()!=null){
-            poMasterEntities=   poMasterRepository.findByOrderStatusInAndUserLevelAndProductOrderManagerEntity_ProductId(statusList,request.getRequester().getUserLevel(),req.getMfgItem());
-        }else if(req.getManufacturer()!=null){
-         //   will add logic in some time
+        var statusList = req.getStatus() == null || req.getStatus().size() == 0 ? Constants.POStatus.getStatusList(5) : req.getStatus();
+        if (req.getCustomer() != null && req.getMfgItem() != null) {
+            poMasterEntities = poMasterRepository.findByOrderStatusInAndCustomerIdAndProductOrderManagerEntity_ProductId(statusList, req.getCustomer(), req.getMfgItem());
+        } else if (req.getCustomer() != null) {
+            poMasterEntities = poMasterRepository.findByOrderStatusInAndCustomerId(statusList, req.getCustomer());
+        } else if (req.getMfgItem() != null) {
+            poMasterEntities = poMasterRepository.findByOrderStatusInAndProductOrderManagerEntity_ProductId(statusList,req.getMfgItem());
+        } else if (req.getManufacturer() != null) {
+            //   will add logic in some time
         }
-        List<PODetails> responsePOList=new ArrayList<>();
-        poMasterEntities.forEach(x->{
-            responsePOList.add( poDetailsMapper.poDetailsPOJOMapper(x));
+        List<PODetails> responsePOList = new ArrayList<>();
+        poMasterEntities.forEach(x -> {
+            responsePOList.add(poDetailsMapper.poDetailsPOJOMapper(x));
         });
         return responsePOList;
     }
+
+
+    private boolean validateUserAccess(int userId, long poId) throws Exception {
+        var purchaseOrder = poMasterRepository.getById(poId);
+        var userValidation = userManagementService.validateUser(userId);
+        var userAccessValidation = userId == purchaseOrder.getCreatedBy() || userManagementService.getMangerAndSupervisor(purchaseOrder.getCreatedBy()).contains(userId);
+        if (!(userValidation && userAccessValidation)) throw new Exception("Invalid user access");
+        return true;
+    }
+    private boolean validateUserAccessForProductOrder(int userId, long productOrderId) throws Exception {
+        var productOrder = productOrderManagerRepository.getById(productOrderId);
+        var userValidation = userManagementService.validateUser(userId);
+        var userAccessValidation = userId == productOrder.getCreatedBy() || userManagementService.getMangerAndSupervisor(productOrder.getCreatedBy()).contains(userId);
+        if (!(userValidation && userAccessValidation)) throw new Exception("Invalid user access");
+        return true;
+    }
+
 }

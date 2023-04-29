@@ -14,5 +14,5 @@ public class Requester
     }
 
     private int userId;
-    private int userLevel;
+    //private int userLevel;
 }
