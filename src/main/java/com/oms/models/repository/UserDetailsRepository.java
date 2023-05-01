@@ -18,8 +18,8 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity,L
     @Query("select u.id from UserDetailsEntity u where u.supervisorId = ?1")
     List<Long> findBySupervisorId(String supervisorId);
 
-    @Query("select u.id from UserDetailsEntity u where u.supervisorId in ?1 and u.activeUser = 'TRUE'")
-    Set<Integer> findBySupervisorIdInAndActiveUser(Collection<Integer> supervisorIds);
+    @Query("select u.id from UserDetailsEntity u where u.supervisorId in ?1 and u.activeUser = ?2 ")
+    Set<Integer> findBySupervisorIdInAndActiveUser(Collection<Integer> supervisorIds,boolean isActive);
 
 
 

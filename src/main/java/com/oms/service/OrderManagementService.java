@@ -134,11 +134,10 @@ public class OrderManagementService {
             //Add check while update operation if modifier is same as creator of PO or supervisor/manager
             po = poMasterRepository.getById(poId);
             po.setModifiedBy(requester.getUserId());
+            //validate user
+            validateUserAccess(requester.getUserId(), poId);
         }
-        if (requester.getUserId() != po.getCreatedBy() || !userManagementService.getMangerAndSupervisor(po.getCreatedBy()).contains(requester.getUserId())) {
-            //throw invalid request
-            throw new Exception("Invalid user request");
-        }
+
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(poDate);
@@ -274,7 +273,8 @@ public class OrderManagementService {
             test = test.and((r, q, c) -> c.between(r.get("poDate"), request.getFromDate(), request.getToDate()));
         }
         test = test.and((r, q, c) -> r.get("orderStatus").in(Constants.POStatus.getStatusList(request.getStatus() < 5 ? request.getStatus() : 1)));
-        test = test.and((r, q, c) -> r.get("createdBy").in(userManagementService.getTeamMemberList(requester.getUserId())));
+        var userAccessList =userManagementService.getTeamMemberList(requester.getUserId());
+        test = test.and((r, q, c) -> r.get("createdBy").in(userAccessList));
         var x = poMasterRepository.findAll(test);
         if (request.getStatus() == 5) {
             x.forEach(po ->
@@ -295,6 +295,7 @@ public class OrderManagementService {
 
         x.forEach(p -> result.add(new PODetailAsList(p.getId(), p.getPoNumber(), p.getPoDate(), p.getOrderStatus(), p.getTotalAmount(), p.getCustomerId(), p.getCustomerDetailsEntity().getCustomerName(), p.getCreatedBy(), p.getCreatedDate(), p.getModifiedDate(), p.getPoDocumentName())));
         result.forEach(m -> m.setCreatedBy(managementService.getFirstNameAndLastName(Long.parseLong(m.getCreatedBy()))));
+       result.sort(Comparator.comparing(PODetailAsList::getCreatedDate));
         return result;
     }
 

@@ -81,51 +81,51 @@ public class UserManagementService {
      * @param userID
      * @return
      */
-    public Set<Integer> getTeamMemberList(long userID) {
+    public Set<Integer> getTeamMemberList(long userID) throws Exception {
         //check if this userId belongs to manager or supervisor
         //IF Manager then get list of supervisors under him and then get list of staff under all supervisors
         Set<Integer> staffMembers = new HashSet<>();
 
         if (validateUser(userID)) {
-                            var role = userRoleManagerRepository.findById(userID);
+            var role = userRoleManagerRepository.findById(userID);
             if (role.isPresent()) {
                 var roleDetail = role.get();
-                staffMembers = userDetailsRepository.findBySupervisorIdInAndActiveUser(Collections.singleton((int)userID));
+                staffMembers = userDetailsRepository.findBySupervisorIdInAndActiveUser(Collections.singleton((int) userID),true);
                 if (roleDetail.getUserRoleEntity().getRoleName().equalsIgnoreCase("MANAGER")) {
                     {
-                        staffMembers.addAll(userDetailsRepository.findBySupervisorIdInAndActiveUser(staffMembers));
+
+                        staffMembers.addAll(userDetailsRepository.findBySupervisorIdInAndActiveUser(staffMembers,true));
                     }
                 }
+            } else {
+                throw new Exception("Invalid user request");
             }
+        } else {
+            throw new Exception("Invalid user request");
         }
-        else
-        {
-            //throw invalid user -or not active
-        }
-        staffMembers.add((int)userID);
+        staffMembers.add((int) userID);
         return staffMembers;
     }
 
     public Set<Integer> getMangerAndSupervisor(long userId) throws Exception {
-        if (validateUser(userId)) {
+        //if (validateUser(userId)) {
             var user = userDetailsRepository.findById(userId);
             if (user.isPresent()) {
                 var superVisor = user.get().getSupervisorId();
-                var manager = userDetailsRepository.getById((long)superVisor).getSupervisorId();
+                var manager = userDetailsRepository.getById((long) superVisor).getSupervisorId();
                 return new HashSet<>(Arrays.asList(superVisor, manager));
             } else {
                 throw new Exception("Invalid user ID");
             }
-        } else {
-            throw new Exception("Invalid user login Please check is user active!!");
-        }
+//        } else {
+//            throw new Exception("Invalid user login Please check is user active!!");
+//        }
     }
 
-    public boolean validateUser(long userId)
-    {
+    public boolean validateUser(long userId) {
         if (userRoleManagerRepository.existsByUserDetailsEntity_IdAndUserDetailsEntity_ActiveUserAndUserRoleEntity_ActiveRoleAndEndDateGreaterThanEqualAndBeginDateLessThanEqualAllIgnoreCase(userId, TRUE, TRUE, new Date(), new Date())) {
             return TRUE;
-        }else
+        } else
             return FALSE;
     }
 }

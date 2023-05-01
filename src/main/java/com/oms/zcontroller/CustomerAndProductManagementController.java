@@ -44,21 +44,21 @@ public class CustomerAndProductManagementController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(value = "/customer/getCustomer/{customerId}")
-    public ResponseEntity<ResponseStructure<Customer>> getCustomer(@PathVariable(name = "customerId") Long customerId) {
+    @PostMapping(value = "/customer/getCustomer")
+    public ResponseEntity<ResponseStructure<Customer>> getCustomer(@RequestBody RequestStructure<Long> request) {
         var response = new ResponseStructure<Customer>();
         try {
-            response.setResult(customerManagementService.getCustomer(customerId));
+            response.setResult(customerManagementService.getCustomer(request.getRequest(),request.getRequester()));
         } catch (Exception e) {
             response.setError(new OMSError("WENT-WRONG", e.getMessage()));
         }
         return ResponseEntity.ok(response);
     }
-    @GetMapping(value = "/customer/getCustomers")
-    public ResponseEntity<ResponseStructure<List<Customer>>> getCustomers() {
+    @PostMapping(value = "/customer/getCustomers")
+    public ResponseEntity<ResponseStructure<List<Customer>>> getCustomers(@RequestBody RequestStructure<String> request) {
         var response = new ResponseStructure<List<Customer>>();
         try {
-            response.setResult(customerManagementService.getCustomers());
+            response.setResult(customerManagementService.getCustomers(request.getRequester()));
         } catch (Exception e) {
             response.setError(new OMSError("WENT-WRONG", e.getMessage()));
         }
