@@ -34,8 +34,7 @@ public class UserDetailsEntity {
     private String userPass;
     @Column(name = "IS_ACTIVE_USER", nullable = false)
     private boolean activeUser;
-   // @Column(name = "USER_LEVEL", nullable = false)
-   // private int userLevel;
+
     @Column(name = "CREATED_BY_USER_ID")
     private Integer createdBy;
 

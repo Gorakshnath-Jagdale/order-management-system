@@ -21,9 +21,7 @@ public class UserManagementService {
 
     private final UserDetailsRepository userDetailsRepository;
     private final UserDetailsMapper mapper;
-    private final UserRoleRepository userRoleRepository;
     private final UserRoleManagerRepository userRoleManagerRepository;
-
     public String addNewUserDetails(UserDetailsPojo user) {
 
         var newUser = mapper.getUserDetailsEntity(user);
@@ -64,9 +62,11 @@ public class UserManagementService {
         return mapper.getUserDetailsPojo(user);
     }
 
-    public UserDetailsPojo login(UserDetailsPojo user) {
+    public UserDetailsPojo login(UserDetailsPojo user) throws Exception {
         var userDetails = userDetailsRepository.findByLoginIdIgnoreCaseAndUserPass(user.getLoginId(), user.getUserPass());
+
         if (userDetails != null) {
+            if(!validateUser(userDetails.getId()))throw new Exception("Invalid user request!");
             return mapper.getUserDetailsPojo(userDetails);
         } else {
             return null;

@@ -1,6 +1,5 @@
 package com.oms.dto;
 
-import com.oms.execeptions.OMSError;
 import lombok.Getter;
 import lombok.Setter;
 

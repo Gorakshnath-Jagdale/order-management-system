@@ -87,7 +87,7 @@ public class ReportsService {
                 temp.setScheduleQty(schedule.getScheduleQty());//8
                 temp.setPendingQty(schedule.getPendingQty());//11
                 temp.setSuppliedQty(schedule.getSuppliedQty());//10
-                temp.setPov(schedule.getPov());//16
+                temp.setPov(order.getPrice()*schedule.getPendingQty());//16
                 temp.setEsplPO(schedule.getEsplPO());//12
                 temp.setInvoiceNo(schedule.getInvoiceNo());//14
                 temp.setInvoiceDate(schedule.getInvoiceDate());//15
@@ -101,6 +101,8 @@ public class ReportsService {
         return response;
     }
 
+    //Pending completed and all
+    //Only active
     public List<ReportsFilterResponse> getFilteredOrderConsolidatedDetails(RequestStructure<ReportsFilterRequest> request) throws Exception {
         var requestBody = request.getRequest();
         Specification<POMasterEntity> test = Specification.where(null);
@@ -146,32 +148,29 @@ public class ReportsService {
         }
         List<ReportsFilterResponse> response = new ArrayList<>();
 
-        x.forEach(po -> {
-
-            po.getProductOrderManagerEntity().forEach(order -> {
-                var temp = new ReportsFilterResponse();
-                temp.setPoDate(po.getPoDate());//2
-                temp.setPoNumber(po.getPoNumber());//1
-                temp.setOrderStatus(po.getOrderStatus());
-                temp.setCustomerId(po.getCustomerId());
-                temp.setPoId(po.getId());
-                temp.setCustomerName(po.getCustomerDetailsEntity().getCustomerName());//3
-                temp.setCustomerItemNo(order.getCustomerItemNo());//4
-                temp.setManufacturer(order.getProductDetails().getManufacturer());//6
-                temp.setProductDetails(order.getProductDetails().getProductDetails());
-                temp.setMfgItemNumber(order.getProductDetails().getMfgItemNumber());//5
-                temp.setPrice(order.getPrice());//7
-                temp.setProductOrderId(order.getId());
-                order.getProductShipmentDetails().forEach(schedule -> {
-                    temp.setScheduleQty((temp.getScheduleQty()==null?0:temp.getScheduleQty())+schedule.getScheduleQty());//8
-                    temp.setPendingQty((temp.getPendingQty()==null?0:temp.getPendingQty())+schedule.getPendingQty());//11
-                    temp.setSuppliedQty((temp.getSuppliedQty()==null?0:temp.getSuppliedQty())+schedule.getSuppliedQty());//10
-                    temp.setPov(temp.getPov()+schedule.getPov());//16
-                });
-
-                response.add(temp);
+        x.forEach(po -> po.getProductOrderManagerEntity().forEach(order -> {
+            var temp = new ReportsFilterResponse();
+            temp.setPoDate(po.getPoDate());//2
+            temp.setPoNumber(po.getPoNumber());//1
+            temp.setOrderStatus(po.getOrderStatus());
+            temp.setCustomerId(po.getCustomerId());
+            temp.setPoId(po.getId());
+            temp.setCustomerName(po.getCustomerDetailsEntity().getCustomerName());//3
+            temp.setCustomerItemNo(order.getCustomerItemNo());//4
+            temp.setManufacturer(order.getProductDetails().getManufacturer());//6
+            temp.setProductDetails(order.getProductDetails().getProductDetails());
+            temp.setMfgItemNumber(order.getProductDetails().getMfgItemNumber());//5
+            temp.setPrice(order.getPrice());//7
+            temp.setProductOrderId(order.getId());
+            order.getProductShipmentDetails().forEach(schedule -> {
+                temp.setScheduleQty((temp.getScheduleQty()==null?0:temp.getScheduleQty())+schedule.getScheduleQty());//8
+                temp.setPendingQty((temp.getPendingQty()==null?0:temp.getPendingQty())+schedule.getPendingQty());//11
+                temp.setSuppliedQty((temp.getSuppliedQty()==null?0:temp.getSuppliedQty())+schedule.getSuppliedQty());//10
+                temp.setPov(temp.getPov()+(order.getPrice()*schedule.getPendingQty()));//16
             });
-        });
+
+            response.add(temp);
+        }));
         return response;
     }
 

@@ -6,6 +6,7 @@ import java.util.Date;
 
 @Data
 public class ReportsFilterRequest {
+
     private Long customerId;
     private String manufacturer;
     private Long poId;

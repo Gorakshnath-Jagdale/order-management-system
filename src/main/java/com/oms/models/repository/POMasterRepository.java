@@ -15,9 +15,12 @@ public interface  POMasterRepository extends JpaRepository<POMasterEntity,Long>,
 
     long countByOrderStatusIgnoreCase(String orderStatus);
 
-    long countByOrderStatusAndProductOrderManagerEntity_ProductShipmentDetails_SupplierDeliveryDateNull(String orderStatus);
+    long countByCreatedByInAndOrderStatus(Collection<Integer> createdBIES, String orderStatus);
 
-    long countByOrderStatusAndProductOrderManagerEntity_ProductShipmentDetails_SupplierDeliveryDateLessThanEqualAndProductOrderManagerEntity_ProductShipmentDetails_InvoiceNoIsIgnoreCaseAndProductOrderManagerEntity_ProductShipmentDetails_InvoiceDateNull(String orderStatus, Date supplierDeliveryDate, String invoiceNo);
+
+    long countByOrderStatusAndCreatedByInAndProductOrderManagerEntity_ProductShipmentDetails_SupplierDeliveryDateNull(String orderStatus,Collection<Integer> createdBIES);
+
+    long countByCreatedByInAndOrderStatusAndProductOrderManagerEntity_ProductShipmentDetails_SupplierDeliveryDateLessThanEqualAndProductOrderManagerEntity_ProductShipmentDetails_InvoiceNoIsIgnoreCaseAndProductOrderManagerEntity_ProductShipmentDetails_InvoiceDateNull(Collection<Integer> createdBIES,String orderStatus, Date supplierDeliveryDate, String invoiceNo);
 
     List<POMasterEntity> findByOrderStatusInAndCustomerIdAndProductOrderManagerEntity_ProductId(Collection<String> orderStatuses, Long customerId, Long productId);
     List<POMasterEntity> findByOrderStatusInAndCustomerId(Collection<String> orderStatuses, Long customerId);

@@ -30,9 +30,6 @@ public class ProductShipmentManagerEntity {
     @Column(name = "SUPPLIED_QTY", nullable = false)
     private Long suppliedQty;
 
-    @Column(name = "POV", nullable = false)
-    private double pov;//pending order value
-
     @Column(name = "REMARKS")
     private String remarks;
 
