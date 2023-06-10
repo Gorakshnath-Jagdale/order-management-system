@@ -5,7 +5,6 @@ import com.oms.models.ProductOrderManagerEntity;
 import com.oms.pojo.CustomerDetailsResponsePojo;
 import com.oms.pojo.ProductOrderManagerPojo;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 

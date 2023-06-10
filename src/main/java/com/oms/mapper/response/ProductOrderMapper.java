@@ -10,11 +10,12 @@ import org.mapstruct.Mapping;
 import java.util.Date;
 import java.util.List;
 
-@Mapper(componentModel = "spring",imports = Date.class)
+@Mapper(componentModel = "spring", imports = Date.class)
 public interface ProductOrderMapper {
 
     List<ProductOrderManagerEntity> productOrderListToProductOrderManagerEntityList(List<ProductOrderManager> productOrderManagerDto);
-    @Mapping(target = "productId",source = "productOrderManagerDto.productDetails.id")
+
+    @Mapping(target = "productId", source = "productOrderManagerDto.productDetails.id")
     @Mapping(target = "createdDate", expression = "java(new Date())")
     ProductOrderManagerEntity ProductOrderToProductOrderManagerEntity(ProductOrderManager productOrderManagerDto);
 

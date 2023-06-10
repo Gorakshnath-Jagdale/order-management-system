@@ -33,6 +33,7 @@ public class CustomerAndProductManagementController {
         }
         return ResponseEntity.ok(response);
     }
+
     @PostMapping(value = "/customer/updateCustomer", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseStructure<Customer>> updateCustomer(@RequestBody RequestStructure<Customer> request) {
         var response = new ResponseStructure<Customer>();
@@ -48,12 +49,13 @@ public class CustomerAndProductManagementController {
     public ResponseEntity<ResponseStructure<Customer>> getCustomer(@RequestBody RequestStructure<Long> request) {
         var response = new ResponseStructure<Customer>();
         try {
-            response.setResult(customerManagementService.getCustomer(request.getRequest(),request.getRequester()));
+            response.setResult(customerManagementService.getCustomer(request.getRequest(), request.getRequester()));
         } catch (Exception e) {
             response.setError(new OMSError("WENT-WRONG", e.getMessage()));
         }
         return ResponseEntity.ok(response);
     }
+
     @PostMapping(value = "/customer/getCustomers")
     public ResponseEntity<ResponseStructure<List<Customer>>> getCustomers(@RequestBody RequestStructure<String> request) {
         var response = new ResponseStructure<List<Customer>>();
@@ -80,6 +82,7 @@ public class CustomerAndProductManagementController {
         }
         return ResponseEntity.ok(response);
     }
+
     @PostMapping(value = "/product/updateProduct", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseStructure<Product>> updateProduct(@RequestBody RequestStructure<Product> request) {
         var response = new ResponseStructure<Product>();
@@ -101,6 +104,7 @@ public class CustomerAndProductManagementController {
         }
         return ResponseEntity.ok(response);
     }
+
     @GetMapping(value = "/product/getProducts")
     public ResponseEntity<ResponseStructure<List<Product>>> getProducts() {
         var response = new ResponseStructure<List<Product>>();
@@ -111,6 +115,7 @@ public class CustomerAndProductManagementController {
         }
         return ResponseEntity.ok(response);
     }
+
     @GetMapping(value = "/product/getManufacturers")
     public ResponseEntity<ResponseStructure<Set<Manufacturer>>> getManufacturers() {
         var response = new ResponseStructure<Set<Manufacturer>>();
@@ -121,6 +126,7 @@ public class CustomerAndProductManagementController {
         }
         return ResponseEntity.ok(response);
     }
+
     @GetMapping(value = "/product/getProductsByManufacturer/{manufacturer}")
     public ResponseEntity<ResponseStructure<List<Product>>> getProductsByManufacturer(@PathVariable(name = "manufacturer") String manufacturer) {
         var response = new ResponseStructure<List<Product>>();

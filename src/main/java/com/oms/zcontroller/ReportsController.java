@@ -6,7 +6,6 @@ import com.oms.dto.requests.ReportsFilterRequest;
 import com.oms.dto.responses.ReportsFilterResponse;
 import com.oms.execeptions.OMSError;
 import com.oms.pojo.CustomerDetailsPojo;
-import com.oms.pojo.requestPojo.GetExcelRequest;
 import com.oms.service.ReportsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -29,14 +28,13 @@ public class ReportsController {
     private final ReportsService reportsService;
 
     @PostMapping("/getReports")
-    ResponseEntity<ResponseStructure<List<ReportsFilterResponse>>> getFilteredOrderDetails(@RequestBody  RequestStructure<ReportsFilterRequest> request)
-    {
-        var response=new ResponseStructure<List<ReportsFilterResponse>>();
-try{
-        response.setResult(reportsService.getFilteredOrderDetails(request));
-    } catch (Exception e) {
-        response.setError(new OMSError("WENT-WRONG", e.getMessage()));
-    }
+    ResponseEntity<ResponseStructure<List<ReportsFilterResponse>>> getFilteredOrderDetails(@RequestBody RequestStructure<ReportsFilterRequest> request) {
+        var response = new ResponseStructure<List<ReportsFilterResponse>>();
+        try {
+            response.setResult(reportsService.getFilteredOrderDetails(request));
+        } catch (Exception e) {
+            response.setError(new OMSError("WENT-WRONG", e.getMessage()));
+        }
         return ResponseEntity.ok(response);
 
 
@@ -44,10 +42,10 @@ try{
 
     /* GET REPORTS */
     @PostMapping(value = "/getExcelReports", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ByteArrayResource> getExcelReports(@RequestBody  RequestStructure<ReportsFilterRequest> request){
+    public ResponseEntity<ByteArrayResource> getExcelReports(@RequestBody RequestStructure<ReportsFilterRequest> request) {
         var response = new ResponseStructure<CustomerDetailsPojo>();
-        var tag=request.getRequest().isConsolidate()?"-Consolidated":"";
-        String filename = "Report"+tag+"-"+new Date()+".xlsx";
+        var tag = request.getRequest().isConsolidate() ? "-Consolidated" : "";
+        String filename = "Report" + tag + "-" + new Date() + ".xlsx";
         try {
             var file = reportsService.getExcelReport(request);
             return ResponseEntity.ok()

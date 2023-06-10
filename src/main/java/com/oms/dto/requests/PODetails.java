@@ -1,6 +1,5 @@
 package com.oms.dto.requests;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -18,7 +17,7 @@ public class PODetails {
     private double totalAmount;
     private String orderStatus;
     private String poDocumentName;
-   // private int userLevel;
+    // private int userLevel;
     private Customer customerDetailsEntity;
     private List<ProductOrderManager> productOrderManagerEntity;
 

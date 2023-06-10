@@ -1,7 +1,6 @@
 package com.oms.zcontroller;
 
 import com.oms.dto.ResponseStructure;
-import com.oms.dto.requests.Customer;
 import com.oms.execeptions.OMSError;
 import com.oms.pojo.UserDetailsPojo;
 import com.oms.service.UserManagementService;
@@ -31,30 +30,32 @@ public class UserManagementController {
     ResponseEntity<String> deleteUser(@PathVariable(name = "userId") Long userId) {
         return ResponseEntity.ok(userManagementService.deleteUserDetails(userId));
     }
+
     @GetMapping(value = "/removeUser/{userId}")
     ResponseEntity<UserDetailsPojo> getUser(@PathVariable(name = "userId") Long userId) throws Exception {
         return ResponseEntity.ok(userManagementService.getUser(userId));
     }
+
     @GetMapping(value = "/getAllUsers")
     ResponseEntity<List<UserDetailsPojo>> getAllUsers() {
         return ResponseEntity.ok(userManagementService.getAllUsers());
     }
-    @PutMapping (
+
+    @PutMapping(
             value = "/updateUser",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> updateUser(@RequestBody UserDetailsPojo user) {
         return ResponseEntity.ok(userManagementService.updateUserDetails(user));
     }
 
-    @PostMapping (
+    @PostMapping(
             value = "/login",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<ResponseStructure<UserDetailsPojo>> login(@RequestBody UserDetailsPojo user) {
         var response = new ResponseStructure<UserDetailsPojo>();
         try {
-            var x=userManagementService.login(user);
-            if(x==null)
-            {
+            var x = userManagementService.login(user);
+            if (x == null) {
                 throw new Exception("invalid Username/Password");
             }
             response.setResult(x);

@@ -27,8 +27,8 @@ public class UserRoleEntity {
 
     @Column(name = "IS_ROLE_ACTIVE", nullable = false)
     private boolean activeRole;
-   // @Column(name = "USER_LEVEL", nullable = false)
-   // private int userLevel;
+    // @Column(name = "USER_LEVEL", nullable = false)
+    // private int userLevel;
     @Column(name = "CREATED_BY_USER_ID")
     private Integer createdBy;
 
@@ -50,7 +50,7 @@ public class UserRoleEntity {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         UserRoleEntity that = (UserRoleEntity) o;
-        return  roleId!= null && Objects.equals(roleId, that.roleId);
+        return roleId != null && Objects.equals(roleId, that.roleId);
     }
 
     @Override

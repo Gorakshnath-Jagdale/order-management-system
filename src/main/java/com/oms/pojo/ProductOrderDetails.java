@@ -6,7 +6,7 @@ import lombok.Data;
 Added this class to return only required fields of product orders from PO.
  */
 @Data
-public class ProductOrderDetails{
+public class ProductOrderDetails {
     private String mfgItemNumber;
     private String orderStatus;
     private float price;

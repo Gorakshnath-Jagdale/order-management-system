@@ -8,12 +8,12 @@ import org.mapstruct.MappingTarget;
 
 import java.util.Date;
 
-@Mapper(componentModel = "spring",imports = Date.class)
+@Mapper(componentModel = "spring", imports = Date.class)
 public interface UserDetailsMapper {
 
     UserDetailsPojo getUserDetailsPojo(UserDetailsEntity user);
 
-   //@Mapping(target = "createdBy", source = "createdBy")
+    //@Mapping(target = "createdBy", source = "createdBy")
     @Mapping(target = "createdDate", expression = "java(new Date())")
     UserDetailsEntity getUserDetailsEntity(UserDetailsPojo userDetails);
 

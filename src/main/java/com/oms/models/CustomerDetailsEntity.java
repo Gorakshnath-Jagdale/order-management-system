@@ -1,6 +1,5 @@
 package com.oms.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -8,7 +7,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Getter
@@ -66,9 +64,10 @@ public class CustomerDetailsEntity {
     public void setModifiedDateCurrent() {
         this.modifiedDate = new Date();
     }
+
     @PrePersist
     public void setCreatedDateCurrent() {
-        this.createdDate =  new Date();
+        this.createdDate = new Date();
     }
 }
 

@@ -27,44 +27,46 @@ public class ReportsService {
     public List<ReportsFilterResponse> getFilteredOrderDetails(RequestStructure<ReportsFilterRequest> request) throws Exception {
         var requestBody = request.getRequest();
         Specification<POMasterEntity> test = Specification.where(null);
-        if(requestBody.getPoId()!=null && requestBody.getPoId()!=0)
-        {
+        if (requestBody.getPoId() != null && requestBody.getPoId() != 0) {
             test = test.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), requestBody.getPoId()));
         }
         if (requestBody.getCustomerId() != null && requestBody.getCustomerId() != 0) {
             test = test.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("customerId"), requestBody.getCustomerId()));
-        }if(requestBody.getFromDate()!=null && requestBody.getToDate()!=null)
-        {
-            if(requestBody.getFromDate().after(requestBody.getToDate())) throw new Exception("From Date can not be greater that to date..");
-            test=test.and((r,q,c)->c.between(r.get("poDate"),requestBody.getFromDate(),requestBody.getToDate()));
+        }
+        if (requestBody.getFromDate() != null && requestBody.getToDate() != null) {
+            if (requestBody.getFromDate().after(requestBody.getToDate()))
+                throw new Exception("From Date can not be greater that to date..");
+            test = test.and((r, q, c) -> c.between(r.get("poDate"), requestBody.getFromDate(), requestBody.getToDate()));
         }
         test = test.and((r, q, c) -> r.get("orderStatus").in(Constants.POStatus.getStatusList(requestBody.getStatus() < 5 ? requestBody.getStatus() : 1)));
-        var userAccessList =userManagementService.getTeamMemberList(request.getRequester().getUserId());
+        var userAccessList = userManagementService.getTeamMemberList(request.getRequester().getUserId());
         test = test.and((r, q, c) -> r.get("createdBy").in(userAccessList));
         var x = poMasterRepository.findAll(test);
 
 
         if (requestBody.getStatus() == 5) {
-            x.forEach(po->
+            x.forEach(po ->
             {
-              po.getProductOrderManagerEntity().forEach(order -> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
+                po.getProductOrderManagerEntity().forEach(order -> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
                         shipment.getSupplierDeliveryDate() == null).collect(Collectors.toList())));
                 //  entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
             });
         } else if (requestBody.getStatus() == 6) {
-            x.forEach(po->
-                    { po.getProductOrderManagerEntity().forEach(order-> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment->
-                            shipment.getSupplierDeliveryDate() != null&& (shipment.getInvoiceDate() == null ||"".equals(shipment.getInvoiceNo()))).collect(Collectors.toList())));}
-                      //  entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
+            x.forEach(po ->
+                    {
+                        po.getProductOrderManagerEntity().forEach(order -> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
+                                shipment.getSupplierDeliveryDate() != null && (shipment.getInvoiceDate() == null || "".equals(shipment.getInvoiceNo()))).collect(Collectors.toList())));
+                    }
+                    //  entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
             );
         }
         // INITIALLY ADDING FILTER FOR USER-LEVEL
 
         if (requestBody.getManufacturer() != null && !requestBody.getManufacturer().equalsIgnoreCase("")) {
             if (requestBody.getProductId() != null && requestBody.getProductId() != 0) {
-                x.forEach(po->po.setProductOrderManagerEntity(po.getProductOrderManagerEntity().stream().filter(order -> Objects.equals(order.getProductId(), requestBody.getProductId())).collect(Collectors.toList())));
+                x.forEach(po -> po.setProductOrderManagerEntity(po.getProductOrderManagerEntity().stream().filter(order -> Objects.equals(order.getProductId(), requestBody.getProductId())).collect(Collectors.toList())));
             } else {
-                x.forEach(po->po.setProductOrderManagerEntity(po.getProductOrderManagerEntity().stream().filter(order -> Objects.equals(order.getProductDetails().getManufacturer(), requestBody.getManufacturer())).collect(Collectors.toList())));
+                x.forEach(po -> po.setProductOrderManagerEntity(po.getProductOrderManagerEntity().stream().filter(order -> Objects.equals(order.getProductDetails().getManufacturer(), requestBody.getManufacturer())).collect(Collectors.toList())));
             }
         }
         List<ReportsFilterResponse> response = new ArrayList<>();
@@ -87,7 +89,7 @@ public class ReportsService {
                 temp.setScheduleQty(schedule.getScheduleQty());//8
                 temp.setPendingQty(schedule.getPendingQty());//11
                 temp.setSuppliedQty(schedule.getSuppliedQty());//10
-                temp.setPov(order.getPrice()*schedule.getPendingQty());//16
+                temp.setPov(order.getPrice() * schedule.getPendingQty());//16
                 temp.setEsplPO(schedule.getEsplPO());//12
                 temp.setInvoiceNo(schedule.getInvoiceNo());//14
                 temp.setInvoiceDate(schedule.getInvoiceDate());//15
@@ -106,34 +108,36 @@ public class ReportsService {
     public List<ReportsFilterResponse> getFilteredOrderConsolidatedDetails(RequestStructure<ReportsFilterRequest> request) throws Exception {
         var requestBody = request.getRequest();
         Specification<POMasterEntity> test = Specification.where(null);
-        if(requestBody.getPoId()!=null && requestBody.getPoId()!=0)
-        {
+        if (requestBody.getPoId() != null && requestBody.getPoId() != 0) {
             test = test.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), requestBody.getPoId()));
         }
         if (requestBody.getCustomerId() != null && requestBody.getCustomerId() != 0) {
             test = test.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("customerId"), requestBody.getCustomerId()));
-        }if(requestBody.getFromDate()!=null && requestBody.getToDate()!=null)
-        {
-            if(requestBody.getFromDate().after(requestBody.getToDate())) throw new Exception("From Date can not be greater that to date..");
-            test=test.and((r,q,c)->c.between(r.get("poDate"),requestBody.getFromDate(),requestBody.getToDate()));
+        }
+        if (requestBody.getFromDate() != null && requestBody.getToDate() != null) {
+            if (requestBody.getFromDate().after(requestBody.getToDate()))
+                throw new Exception("From Date can not be greater that to date..");
+            test = test.and((r, q, c) -> c.between(r.get("poDate"), requestBody.getFromDate(), requestBody.getToDate()));
         }
         test = test.and((r, q, c) -> r.get("orderStatus").in(Constants.POStatus.getStatusList(requestBody.getStatus() < 5 ? requestBody.getStatus() : 1)));
-        var userAccessList =userManagementService.getTeamMemberList(request.getRequester().getUserId());
+        var userAccessList = userManagementService.getTeamMemberList(request.getRequester().getUserId());
         test = test.and((r, q, c) -> r.get("createdBy").in(userAccessList));
         var x = poMasterRepository.findAll(test);
 
 
         if (requestBody.getStatus() == 5) {
-            x.forEach(po->
+            x.forEach(po ->
             {
                 po.getProductOrderManagerEntity().forEach(order -> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
                         shipment.getSupplierDeliveryDate() == null).collect(Collectors.toList())));
                 //  entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
             });
         } else if (requestBody.getStatus() == 6) {
-            x.forEach(po->
-                    { po.getProductOrderManagerEntity().forEach(order-> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment->
-                            shipment.getSupplierDeliveryDate() != null&& (shipment.getInvoiceDate() == null ||"".equals(shipment.getInvoiceNo()))).collect(Collectors.toList())));}
+            x.forEach(po ->
+                    {
+                        po.getProductOrderManagerEntity().forEach(order -> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
+                                shipment.getSupplierDeliveryDate() != null && (shipment.getInvoiceDate() == null || "".equals(shipment.getInvoiceNo()))).collect(Collectors.toList())));
+                    }
                     //  entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
             );
         }
@@ -141,9 +145,9 @@ public class ReportsService {
 
         if (requestBody.getManufacturer() != null && !requestBody.getManufacturer().equalsIgnoreCase("")) {
             if (requestBody.getProductId() != null && requestBody.getProductId() != 0) {
-                x.forEach(po->po.setProductOrderManagerEntity(po.getProductOrderManagerEntity().stream().filter(order -> Objects.equals(order.getProductId(), requestBody.getProductId())).collect(Collectors.toList())));
+                x.forEach(po -> po.setProductOrderManagerEntity(po.getProductOrderManagerEntity().stream().filter(order -> Objects.equals(order.getProductId(), requestBody.getProductId())).collect(Collectors.toList())));
             } else {
-                x.forEach(po->po.setProductOrderManagerEntity(po.getProductOrderManagerEntity().stream().filter(order -> Objects.equals(order.getProductDetails().getManufacturer(), requestBody.getManufacturer())).collect(Collectors.toList())));
+                x.forEach(po -> po.setProductOrderManagerEntity(po.getProductOrderManagerEntity().stream().filter(order -> Objects.equals(order.getProductDetails().getManufacturer(), requestBody.getManufacturer())).collect(Collectors.toList())));
             }
         }
         List<ReportsFilterResponse> response = new ArrayList<>();
@@ -163,10 +167,10 @@ public class ReportsService {
             temp.setPrice(order.getPrice());//7
             temp.setProductOrderId(order.getId());
             order.getProductShipmentDetails().forEach(schedule -> {
-                temp.setScheduleQty((temp.getScheduleQty()==null?0:temp.getScheduleQty())+schedule.getScheduleQty());//8
-                temp.setPendingQty((temp.getPendingQty()==null?0:temp.getPendingQty())+schedule.getPendingQty());//11
-                temp.setSuppliedQty((temp.getSuppliedQty()==null?0:temp.getSuppliedQty())+schedule.getSuppliedQty());//10
-                temp.setPov(temp.getPov()+(order.getPrice()*schedule.getPendingQty()));//16
+                temp.setScheduleQty((temp.getScheduleQty() == null ? 0 : temp.getScheduleQty()) + schedule.getScheduleQty());//8
+                temp.setPendingQty((temp.getPendingQty() == null ? 0 : temp.getPendingQty()) + schedule.getPendingQty());//11
+                temp.setSuppliedQty((temp.getSuppliedQty() == null ? 0 : temp.getSuppliedQty()) + schedule.getSuppliedQty());//10
+                temp.setPov(temp.getPov() + (order.getPrice() * schedule.getPendingQty()));//16
             });
 
             response.add(temp);
@@ -176,10 +180,10 @@ public class ReportsService {
 
 
     //EXCEL REPORT LOGIC
-public ByteArrayResource getExcelReport(RequestStructure<ReportsFilterRequest> request) throws Exception {
-    var requestBody = request.getRequest();
- var test=requestBody.isConsolidate()?getFilteredOrderConsolidatedDetails(request):getFilteredOrderDetails(request);
- var isSingleCustomer=requestBody.getCustomerId() != null && requestBody.getCustomerId() != 0;
-    return excelGeneratorService.getOrderDetailsExcel(test, isSingleCustomer,requestBody.isConsolidate());
-}
+    public ByteArrayResource getExcelReport(RequestStructure<ReportsFilterRequest> request) throws Exception {
+        var requestBody = request.getRequest();
+        var test = requestBody.isConsolidate() ? getFilteredOrderConsolidatedDetails(request) : getFilteredOrderDetails(request);
+        var isSingleCustomer = requestBody.getCustomerId() != null && requestBody.getCustomerId() != 0;
+        return excelGeneratorService.getOrderDetailsExcel(test, isSingleCustomer, requestBody.isConsolidate());
+    }
 }

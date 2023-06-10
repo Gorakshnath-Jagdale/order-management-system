@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
@@ -44,12 +43,12 @@ public class ProductDetailsEntity {
     private Date modifiedDate;
 
     @OneToMany
-    @JoinColumn(name = "PRODUCT_ID",insertable = false, updatable = false)
+    @JoinColumn(name = "PRODUCT_ID", insertable = false, updatable = false)
     @JsonBackReference(value = "test")
     private List<ProductOrderManagerEntity> productOrderManagerEntity;
 
     @OneToMany
-    @JoinColumn(name = "PRODUCT_ID",insertable = false, updatable = false)
+    @JoinColumn(name = "PRODUCT_ID", insertable = false, updatable = false)
     @JsonBackReference(value = "test2")
     private List<ProductShipmentManagerEntity> productShipmentManagerEntity;
 
@@ -57,8 +56,9 @@ public class ProductDetailsEntity {
     public void setModifiedDateCurrent() {
         this.modifiedDate = new Date();
     }
+
     @PrePersist
     public void setCreatedDateCurrent() {
-        this.createdDate =  new Date();
+        this.createdDate = new Date();
     }
 }

@@ -39,7 +39,7 @@ public class POMasterEntity {
 //    @Column(name = "USER_LEVEL", nullable = false)
 //    private int userLevel;
 
-    @Column(name="PO_DOCUMENT_NAME")
+    @Column(name = "PO_DOCUMENT_NAME")
     private String poDocumentName;
 
     @Column(name = "CREATED_BY")
@@ -59,16 +59,16 @@ public class POMasterEntity {
     private Date modifiedDate;
 
     @OneToMany
-    @JoinColumn(name = "po_Id",insertable = false, updatable = false)
+    @JoinColumn(name = "po_Id", insertable = false, updatable = false)
     @JsonBackReference(value = "test")
     private List<ProductOrderManagerEntity> productOrderManagerEntity;
 
     @ManyToOne
-    @JoinColumn(name = "CUSTOMER_ID",insertable = false, updatable = false)
+    @JoinColumn(name = "CUSTOMER_ID", insertable = false, updatable = false)
     @JsonBackReference(value = "test2")
     private CustomerDetailsEntity customerDetailsEntity;
     @ManyToOne
-    @JoinColumn(name = "CREATED_BY",insertable = false, updatable = false)
+    @JoinColumn(name = "CREATED_BY", insertable = false, updatable = false)
     @JsonBackReference(value = "userDetailsEntity")
     private UserDetailsEntity userDetailsEntity;
 
@@ -77,8 +77,9 @@ public class POMasterEntity {
     public void setModifiedDateCurrent() {
         this.modifiedDate = new Date();
     }
+
     @PrePersist
     public void setCreatedDateCurrent() {
-        this.createdDate =  new Date();
+        this.createdDate = new Date();
     }
 }

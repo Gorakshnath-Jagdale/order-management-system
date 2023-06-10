@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 import java.util.Set;
 
-public interface ProductDetailsRepository extends JpaRepository<ProductDetailsEntity,Long> {
+public interface ProductDetailsRepository extends JpaRepository<ProductDetailsEntity, Long> {
     List<ProductDetailsEntity> findByManufacturerIgnoreCase(String manufacturer);
 
 

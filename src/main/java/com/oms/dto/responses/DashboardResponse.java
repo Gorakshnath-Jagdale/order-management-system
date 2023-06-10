@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DashboardResponse {
-   private long pendingSDDCount;
-  private  long pendingInvoiceFor30Day;
+    private long pendingSDDCount;
+    private long pendingInvoiceFor30Day;
     private long activePurchaseOrders;
     private long completedPurchaseOrder;
 }

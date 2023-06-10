@@ -7,8 +7,7 @@ public class Manufacturer {
 
     private String manufacturer;
 
-    public Manufacturer(String manufacturer)
-    {
-        this.manufacturer=manufacturer;
+    public Manufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
     }
 }

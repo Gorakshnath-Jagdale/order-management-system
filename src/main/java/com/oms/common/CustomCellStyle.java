@@ -1,6 +1,6 @@
 package com.oms.common;
 
-enum  CustomCellStyle {
+enum CustomCellStyle {
     GREY_CENTERED_BOLD_ARIAL_WITH_BORDER,
     RIGHT_ALIGNED,
     RED_BOLD_ARIAL_WITH_BORDER,

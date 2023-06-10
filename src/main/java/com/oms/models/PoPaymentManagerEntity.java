@@ -12,7 +12,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
-@Table(schema = "OMS_ADVANCE",name = "PO_PAYMENT_MANAGER")
+@Table(schema = "OMS_ADVANCE", name = "PO_PAYMENT_MANAGER")
 public class PoPaymentManagerEntity {
 
     @Id
@@ -32,7 +32,7 @@ public class PoPaymentManagerEntity {
 
     @Column(name = "ORIGINAL_AMOUNT", nullable = false)
     private float originalAmount;
-     @Column(name = "PAID_AMOUNT", nullable = false)
+    @Column(name = "PAID_AMOUNT", nullable = false)
     private float paidAmount;
 
     @Column(name = "DAYS_DUE", nullable = false)
@@ -55,12 +55,12 @@ public class PoPaymentManagerEntity {
     private Date modifiedDate;
 
     @ManyToOne
-    @JoinColumn(name = "CUSTOMER_ID",insertable = false, updatable = false)
+    @JoinColumn(name = "CUSTOMER_ID", insertable = false, updatable = false)
     @JsonBackReference
     private CustomerDetailsEntity customerDetails;
 
     @OneToOne
-    @JoinColumn(name = "PO_ID",insertable = false, updatable = false)
+    @JoinColumn(name = "PO_ID", insertable = false, updatable = false)
     @JsonBackReference
     private POMasterEntity poDetails;
 
@@ -68,8 +68,9 @@ public class PoPaymentManagerEntity {
     public void setModifiedDateCurrent() {
         this.modifiedDate = new Date();
     }
+
     @PrePersist
     public void setCreatedDateCurrent() {
-        this.createdDate =  new Date();
+        this.createdDate = new Date();
     }
 }

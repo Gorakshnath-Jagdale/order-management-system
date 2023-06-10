@@ -3,7 +3,6 @@ package com.oms.models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
@@ -83,7 +82,7 @@ public class ProductShipmentManagerEntity {
 //    private Long productId;
 
     @ManyToOne
-    @JoinColumn(name = "PRODUCT_ORDER_ID",insertable = false, updatable = false)
+    @JoinColumn(name = "PRODUCT_ORDER_ID", insertable = false, updatable = false)
     @JsonBackReference(value = "test")
     private ProductOrderManagerEntity productOrderManagerEntity;
 
@@ -98,9 +97,10 @@ public class ProductShipmentManagerEntity {
     public void setModifiedDateCurrent() {
         this.modifiedDate = new Date();
     }
+
     @PrePersist
     public void setCreatedDateCurrent() {
-        this.createdDate =  new Date();
+        this.createdDate = new Date();
     }
 
     @Override

@@ -6,11 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 @Repository
-public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity,Long> {
+public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, Long> {
 
 
     UserDetailsEntity findByLoginIdIgnoreCaseAndUserPass(String loginId, String userPass);
@@ -19,11 +20,9 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity,L
     List<Long> findBySupervisorId(String supervisorId);
 
     @Query("select u.id from UserDetailsEntity u where u.supervisorId in ?1 and u.activeUser = ?2 ")
-    Set<Integer> findBySupervisorIdInAndActiveUser(Collection<Integer> supervisorIds,boolean isActive);
+    Set<Integer> findBySupervisorIdInAndActiveUser(Collection<Integer> supervisorIds, boolean isActive);
 
-
-
-
+    boolean existsByIdIsAndActiveUserIsAndEndDateGreaterThanEqualAndBeginDateLessThanEqualAndUserRoleEntity_ActiveRoleTrue(Long id, boolean activeUser, Date endDate, Date beginDate);
 
 
 }

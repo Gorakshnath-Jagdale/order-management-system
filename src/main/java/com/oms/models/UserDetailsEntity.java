@@ -35,6 +35,18 @@ public class UserDetailsEntity {
     @Column(name = "IS_ACTIVE_USER", nullable = false)
     private boolean activeUser;
 
+    @OneToOne
+    @JoinColumn(name = "ROLE_ID", nullable = false)
+    private UserRoleEntity userRoleEntity;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "BEGIN_DATE", nullable = false)
+    private Date beginDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "END_DATE", nullable = false)
+    private Date endDate;
+
     @Column(name = "CREATED_BY_USER_ID")
     private Integer createdBy;
 

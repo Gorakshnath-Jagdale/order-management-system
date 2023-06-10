@@ -14,8 +14,8 @@ public class GetExcelRequest {
     //if getOrdersWithEmptySDD=true -return only those with empty supplier delivery date.
     private boolean isSingleCustomer;
     private boolean getOrdersWithEmptySDD;
-private int orderStatusCode;
-//          1 ACTIVE_PO
+    private int orderStatusCode;
+    //          1 ACTIVE_PO
 //          2 COMPLETED_PO
 //          3 AMENDED_PO
 //          4 CANCEL_PO
@@ -24,6 +24,6 @@ private int orderStatusCode;
     private List<Long> customerList;// It will be used where isSingleCustomer is false
 }
 
-class test{
+class test {
 
 }

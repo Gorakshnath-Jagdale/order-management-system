@@ -2,7 +2,6 @@ package com.oms.mapper;
 
 import com.oms.models.CustomerDetailsEntity;
 import com.oms.models.ProductDetailsEntity;
-import com.oms.models.ProductOrderManagerEntity;
 import com.oms.pojo.CustomerDetailsPojo;
 import com.oms.pojo.ProductDetails;
 import org.mapstruct.Mapper;
@@ -14,15 +13,15 @@ import java.util.List;
 @Mapper(componentModel = "spring", imports = {Date.class})
 public interface ResponseMapper {
 
-     CustomerDetailsPojo customerDetailsPojoMapper(CustomerDetailsEntity customerDetails);
+    CustomerDetailsPojo customerDetailsPojoMapper(CustomerDetailsEntity customerDetails);
 
-//     @Mapping(target = "createdBy",defaultValue = "Me")
+    //     @Mapping(target = "createdBy",defaultValue = "Me")
 //     @Mapping(target = "createdDate",expression = "java(new Date())")
 //     @Mapping(target = "modifiedDate",expression = "java(new Date())")
-          @Mapping(target = "createdDate",ignore = true)
-     @Mapping(target = "modifiedDate",ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "modifiedDate", ignore = true)
 //     @Mapping(target = "modifiedBy",defaultValue = "Me")
-     //@Mapping(target = "customerOrders" ,expression = "java(OrderManagerEntityMapper(customerDetails.getCustomerOrders()))")
+    //@Mapping(target = "customerOrders" ,expression = "java(OrderManagerEntityMapper(customerDetails.getCustomerOrders()))")
     CustomerDetailsEntity customerDetailsEntityMapper(CustomerDetailsPojo customerDetails);
 //
 //   default List<ProductOrderManagerEntity> OrderManagerEntityMapper(List<ProductOrderManagerEntity> orderManagerEntities){

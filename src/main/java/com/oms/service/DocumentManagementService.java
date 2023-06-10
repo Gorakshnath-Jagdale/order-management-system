@@ -3,7 +3,6 @@ package com.oms.service;
 import com.oms.dto.Requester;
 import com.oms.models.repository.POMasterRepository;
 import com.oms.service.util.Constants;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -27,7 +26,7 @@ public class DocumentManagementService {
     @Autowired
     public DocumentManagementService(POMasterRepository poMasterRepository) throws Exception {
         this.poMasterRepository = poMasterRepository;
-        this.storageLocation=Paths.get(Constants.POStatus.UPLOAD_FOLDER).toAbsolutePath().normalize();
+        this.storageLocation = Paths.get(Constants.POStatus.UPLOAD_FOLDER).toAbsolutePath().normalize();
 //        try{
 //            Files.createDirectories(this.storageLocation);
 //        } catch (IOException e) {
@@ -35,7 +34,7 @@ public class DocumentManagementService {
 //        }
     }
 
-    public Resource loadFileResource(String fileName,Long customerId, Requester request) throws Exception {
+    public Resource loadFileResource(String fileName, Long customerId, Requester request) throws Exception {
 //        String documentName=poMasterRepository.findByUserLevelAndPoNumberIgnoreCaseAndCustomerId(request.getUserLevel(),poNumber,customerId);
 //
 //       if(documentName==null)
@@ -53,18 +52,18 @@ public class DocumentManagementService {
         }
     }
 
-    public String uploadFile(MultipartFile file,Long poId) {
+    public String uploadFile(MultipartFile file, Long poId) {
 //Noramlize file name
-        String fileName= StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-        try{
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        try {
             //cheke it the file's name contains invalid characters
-            if (fileName.contains("..")){
-            throw new Exception("sorry! filename contains invalid path sequence " + fileName);
+            if (fileName.contains("..")) {
+                throw new Exception("sorry! filename contains invalid path sequence " + fileName);
             }
-           // this.storageLocation = Paths.get("C:\\Users\\GORAKSHNATH\\Documents\\Custom Office Templates").toAbsolutePath().normalize();
+            // this.storageLocation = Paths.get("C:\\Users\\GORAKSHNATH\\Documents\\Custom Office Templates").toAbsolutePath().normalize();
             Path filePath = storageLocation.resolve(fileName);
-            Files.copy(file.getInputStream(),filePath, StandardCopyOption.REPLACE_EXISTING);
-            var getPO=poMasterRepository.getById(poId);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            var getPO = poMasterRepository.getById(poId);
             getPO.setPoDocumentName(fileName);
             poMasterRepository.save(getPO);
             return fileName;
@@ -80,8 +79,7 @@ public class DocumentManagementService {
             return Files.walk(this.storageLocation, 1)
                     .filter(path -> !path.equals(this.storageLocation))
                     .map(this.storageLocation::relativize);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new Exception("Failed to read stored files", e);
         }
 

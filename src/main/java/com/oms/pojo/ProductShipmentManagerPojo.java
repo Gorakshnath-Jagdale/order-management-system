@@ -14,7 +14,8 @@ public class ProductShipmentManagerPojo {
     private String esplPO;
     private String invoiceNo;
     private Long id;
-private Long productOrderId;
+    private Long productOrderId;
+
     private String getMyDate(Date date) {
         try {
             return new SimpleDateFormat("dd/MM/yyyy").format(date);

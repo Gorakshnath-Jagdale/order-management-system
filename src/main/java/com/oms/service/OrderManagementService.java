@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -275,7 +274,7 @@ public class OrderManagementService {
 
     public List<ProductOrderManager> bulkSupplierDeliveryDateUpdate(RequestStructure<BulkSupplierDeliveryDateUpdateRequest> requestPayload) throws Exception {
         validateUserAccessForProductOrder(requestPayload.getRequester().getUserId(), requestPayload.getRequest().getProductOrderId());
-        var request=requestPayload.getRequest();
+        var request = requestPayload.getRequest();
   /*  //Given - total quantity to deliver,date to deliver
     //Pick 1st schedule
         // subtract total quantity by scheduled quantity and add SDD
@@ -292,30 +291,28 @@ public class OrderManagementService {
    */
         var productOrder = productOrderManagerRepository.getById(request.getProductOrderId());
         productOrder.getProductShipmentDetails().sort(Comparator.comparing(ProductShipmentManagerEntity::getCustomerRequestedDate));
-        productOrder.getProductShipmentDetails().forEach(x->{
+        productOrder.getProductShipmentDetails().forEach(x -> {
 
-            if(x.getScheduleQty()<=request.getTotalDeliveryQuantity() && request.getTotalDeliveryQuantity()!=0 &&(x.getSupplierDeliveryDate() == null || 0 == request.getSupplierDeliveryDate().compareTo(x.getSupplierDeliveryDate())))
-            {
+            if (x.getScheduleQty() <= request.getTotalDeliveryQuantity() && request.getTotalDeliveryQuantity() != 0 && (x.getSupplierDeliveryDate() == null || 0 == request.getSupplierDeliveryDate().compareTo(x.getSupplierDeliveryDate()))) {
                 x.setSupplierDeliveryDate(request.getSupplierDeliveryDate());
-                request.setTotalDeliveryQuantity(request.getTotalDeliveryQuantity()-x.getScheduleQty());
-            }else if(x.getScheduleQty()>request.getTotalDeliveryQuantity() && request.getTotalDeliveryQuantity()!=0 && (x.getSupplierDeliveryDate() == null || 0 == request.getSupplierDeliveryDate().compareTo(x.getSupplierDeliveryDate())))
-            {
-              var newScheduleQuantity=x.getScheduleQty()-request.getTotalDeliveryQuantity();
-              var updatedScheduleQuantity=request.getTotalDeliveryQuantity(); //this will be updated in current schedule
+                request.setTotalDeliveryQuantity(request.getTotalDeliveryQuantity() - x.getScheduleQty());
+            } else if (x.getScheduleQty() > request.getTotalDeliveryQuantity() && request.getTotalDeliveryQuantity() != 0 && (x.getSupplierDeliveryDate() == null || 0 == request.getSupplierDeliveryDate().compareTo(x.getSupplierDeliveryDate()))) {
+                var newScheduleQuantity = x.getScheduleQty() - request.getTotalDeliveryQuantity();
+                var updatedScheduleQuantity = request.getTotalDeliveryQuantity(); //this will be updated in current schedule
                 x.setScheduleQty(request.getTotalDeliveryQuantity());
                 x.setPendingQty(request.getTotalDeliveryQuantity());
                 x.setSupplierDeliveryDate(request.getSupplierDeliveryDate());
                 x.setSuppliedQty(0L);
-                var newSchedule=new ProductShipmentManagerEntity();
+                var newSchedule = new ProductShipmentManagerEntity();
                 newSchedule.setScheduleQty(newScheduleQuantity);
                 newSchedule.setProductOrderId(x.getProductOrderId());
                 newSchedule.setSuppliedQty(0L);
                 newSchedule.setPendingQty(newScheduleQuantity);
                 newSchedule.setCustomerRequestedDate(x.getCustomerRequestedDate());
                 newSchedule.setCreatedBy(requestPayload.getRequester().getUserId());
-                newSchedule.setRemarks("Created from scheduleID : "+x.getId());
+                newSchedule.setRemarks("Created from scheduleID : " + x.getId());
                 productShipmentManagerRepository.save(newSchedule);
-                request.setTotalDeliveryQuantity(request.getTotalDeliveryQuantity()-x.getScheduleQty());
+                request.setTotalDeliveryQuantity(request.getTotalDeliveryQuantity() - x.getScheduleQty());
             }
             productShipmentManagerRepository.save(x);
         });
@@ -324,7 +321,7 @@ public class OrderManagementService {
 
     public List<ProductOrderManager> bulkInvoiceDetailsUpdate(RequestStructure<BulkInvoiceDetailsUpdateRequest> requestPayload) throws Exception {
         validateUserAccessForProductOrder(requestPayload.getRequester().getUserId(), requestPayload.getRequest().getProductOrderId());
-        var request=requestPayload.getRequest();
+        var request = requestPayload.getRequest();
           /*  //Given - total quantity to deliver,invoice number, invoice date , ESPLPO
         Case 0 : Subtract total quantity by pending quantity and update pending QTY to 0 and supplied QTY to pending QTY
             Example :
@@ -338,11 +335,10 @@ public class OrderManagementService {
    */
         var productOrder = productOrderManagerRepository.getById(request.getProductOrderId());
         productOrder.getProductShipmentDetails().sort(Comparator.comparing(ProductShipmentManagerEntity::getCustomerRequestedDate));
-        productOrder.getProductShipmentDetails().forEach(x->{
+        productOrder.getProductShipmentDetails().forEach(x -> {
 
-            if(x.getScheduleQty()<=request.getTotalDeliveryQuantity() && request.getTotalDeliveryQuantity()!=0 &&(x.getInvoiceNo() == null ||x.getInvoiceNo().trim().isEmpty()|| x.getInvoiceNo().equalsIgnoreCase(request.getInvoiceNo())))
-            {
-                x.setSupplierDeliveryDate(x.getSupplierDeliveryDate()==null?request.getInvoiceDate():x.getSupplierDeliveryDate());
+            if (x.getScheduleQty() <= request.getTotalDeliveryQuantity() && request.getTotalDeliveryQuantity() != 0 && (x.getInvoiceNo() == null || x.getInvoiceNo().trim().isEmpty() || x.getInvoiceNo().equalsIgnoreCase(request.getInvoiceNo()))) {
+                x.setSupplierDeliveryDate(x.getSupplierDeliveryDate() == null ? request.getInvoiceDate() : x.getSupplierDeliveryDate());
                 x.setPendingQty(0L);
                 x.setSuppliedQty(x.getScheduleQty());
                 x.setInvoiceNo(request.getInvoiceNo());
@@ -350,15 +346,14 @@ public class OrderManagementService {
                 x.setEsplPO(request.getEsplpo());
                 x.setModifiedBy(requestPayload.getRequester().getUserId());
 
-                request.setTotalDeliveryQuantity(request.getTotalDeliveryQuantity()-x.getScheduleQty());
-            }else if(x.getScheduleQty()>request.getTotalDeliveryQuantity() && request.getTotalDeliveryQuantity()!=0 && (x.getInvoiceNo() == null||x.getInvoiceNo().trim().isEmpty() || x.getInvoiceNo().equalsIgnoreCase(request.getInvoiceNo())))
-            {
-                var newScheduleQuantity=x.getScheduleQty()-request.getTotalDeliveryQuantity();
-                var updatedScheduleQuantity=request.getTotalDeliveryQuantity(); //this will be updated in current schedule
+                request.setTotalDeliveryQuantity(request.getTotalDeliveryQuantity() - x.getScheduleQty());
+            } else if (x.getScheduleQty() > request.getTotalDeliveryQuantity() && request.getTotalDeliveryQuantity() != 0 && (x.getInvoiceNo() == null || x.getInvoiceNo().trim().isEmpty() || x.getInvoiceNo().equalsIgnoreCase(request.getInvoiceNo()))) {
+                var newScheduleQuantity = x.getScheduleQty() - request.getTotalDeliveryQuantity();
+                var updatedScheduleQuantity = request.getTotalDeliveryQuantity(); //this will be updated in current schedule
 
                 //x.setPendingQty(request.getQuantity());
-               // x.setSuppliedQty(0L);
-                var newSchedule=new ProductShipmentManagerEntity();
+                // x.setSuppliedQty(0L);
+                var newSchedule = new ProductShipmentManagerEntity();
                 newSchedule.setScheduleQty(newScheduleQuantity);
                 newSchedule.setProductOrderId(x.getProductOrderId());
 
@@ -366,7 +361,7 @@ public class OrderManagementService {
                 newSchedule.setCustomerRequestedDate(x.getCustomerRequestedDate());
                 newSchedule.setCreatedBy(requestPayload.getRequester().getUserId());
                 x.setScheduleQty(request.getTotalDeliveryQuantity());
-                x.setSupplierDeliveryDate(x.getSupplierDeliveryDate()==null?request.getInvoiceDate():x.getSupplierDeliveryDate());
+                x.setSupplierDeliveryDate(x.getSupplierDeliveryDate() == null ? request.getInvoiceDate() : x.getSupplierDeliveryDate());
                 x.setPendingQty(0L);
                 x.setSuppliedQty(x.getScheduleQty());
                 x.setInvoiceNo(request.getInvoiceNo());
@@ -374,7 +369,7 @@ public class OrderManagementService {
                 x.setEsplPO(request.getEsplpo());
                 x.setModifiedBy(requestPayload.getRequester().getUserId());
                 productShipmentManagerRepository.save(newSchedule);
-                request.setTotalDeliveryQuantity(request.getTotalDeliveryQuantity()-x.getScheduleQty());
+                request.setTotalDeliveryQuantity(request.getTotalDeliveryQuantity() - x.getScheduleQty());
             }
             productShipmentManagerRepository.save(x);
         });
@@ -398,7 +393,6 @@ public class OrderManagementService {
     }
 
     private void validateItemDetails(ProductOrderManagerEntity entity) {
-
 
 
     }

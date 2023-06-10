@@ -1,13 +1,6 @@
 package com.oms.mapper.response;
 
-import com.oms.dto.responses.ReportsFilterResponse;
-import com.oms.models.POMasterEntity;
-import com.oms.models.ProductOrderManagerEntity;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-
-import java.util.Date;
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ReportsMapper {

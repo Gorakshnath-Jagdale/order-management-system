@@ -1,5 +1,6 @@
 package com.oms.pojo;
 
+import com.oms.models.UserRoleEntity;
 import lombok.Data;
 
 import java.util.Date;
@@ -13,10 +14,13 @@ public class UserDetailsPojo {
     private String userFirstName;
     private String userLastName;
     private String userPass;
+    private UserRoleEntity userRoleEntity;
+    private Date beginDate;
+    private Date endDate;
     private boolean activeUser;
     private Integer createdBy;
     private Integer modifiedBy;
-//    private int userLevel;
+    //    private int userLevel;
     private Date createdDate;
 }
 

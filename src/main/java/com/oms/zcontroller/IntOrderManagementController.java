@@ -12,16 +12,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 public interface IntOrderManagementController {
-     ResponseEntity<ResponseStructure<CustomerDetailsPojo>> saveNewOrderDetails(@RequestBody CustomerDetailsPojo customerDetails);
-     ResponseEntity<ResponseStructure<CustomerDetailsPojo>> updateOrderDetails(@RequestBody CustomerDetailsPojo customerDetails);
-    public ResponseEntity<ByteArrayResource> getReports(@RequestBody GetExcelRequest customerDetails);
-//    ResponseEntity <ResponseStructure<List<OrderDetailsResponse>>> getAllOrderWithFilter(@RequestBody GetALLOrderFiltersRequest request);
+    ResponseEntity<ResponseStructure<CustomerDetailsPojo>> saveNewOrderDetails(@RequestBody CustomerDetailsPojo customerDetails);
+
+    ResponseEntity<ResponseStructure<CustomerDetailsPojo>> updateOrderDetails(@RequestBody CustomerDetailsPojo customerDetails);
+
+    ResponseEntity<ByteArrayResource> getReports(@RequestBody GetExcelRequest customerDetails);
+
+    //    ResponseEntity <ResponseStructure<List<OrderDetailsResponse>>> getAllOrderWithFilter(@RequestBody GetALLOrderFiltersRequest request);
     ResponseEntity<ResponseStructure<List<ProductOrderManagerPojo>>> getAllOrder();//stopped using
+
     ResponseEntity<ResponseStructure<List<Customers>>> getAllCustomers();
-    ResponseEntity<ResponseStructure<CustomerDetailsResponsePojo>> getAllOrderByCustomerIdAndPONumber( GetOrdersByPOIdRequest request);
+
+    ResponseEntity<ResponseStructure<CustomerDetailsResponsePojo>> getAllOrderByCustomerIdAndPONumber(GetOrdersByPOIdRequest request);
+
     ResponseEntity<ResponseStructure<List<ProductDetails>>> getAllProducts();
+
     ResponseEntity<ResponseStructure<List<PODetails>>> getAllPOList();
-    ResponseEntity<ResponseStructure<List<PODetails>>> getPODetails(@RequestParam("poNumber")String poNumber);
+
+    ResponseEntity<ResponseStructure<List<PODetails>>> getPODetails(@RequestParam("poNumber") String poNumber);
 
 
 }

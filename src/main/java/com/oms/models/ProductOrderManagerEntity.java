@@ -1,17 +1,12 @@
 package com.oms.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -70,17 +65,17 @@ public class ProductOrderManagerEntity {
 //    private CustomerDetailsEntity customerDetails;
 
     @ManyToOne
-  @JoinColumn(name = "PRODUCT_ID",insertable = false, updatable = false)
+    @JoinColumn(name = "PRODUCT_ID", insertable = false, updatable = false)
     @JsonBackReference(value = "test1")
     private ProductDetailsEntity productDetails;
 
-    @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "PRODUCT_ORDER_ID")
     @JsonBackReference(value = "test2")
     private List<ProductShipmentManagerEntity> productShipmentDetails;
 
     @ManyToOne
-    @JoinColumn(name = "PO_ID",insertable = false, updatable = false)
+    @JoinColumn(name = "PO_ID", insertable = false, updatable = false)
     @JsonBackReference(value = "test3")
     private POMasterEntity poMasterEntity;
 
@@ -91,6 +86,6 @@ public class ProductOrderManagerEntity {
 
     @PrePersist
     public void setCreatedDateCurrent() {
-        this.createdDate =  new Date();
+        this.createdDate = new Date();
     }
 }

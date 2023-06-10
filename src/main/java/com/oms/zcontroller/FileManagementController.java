@@ -26,11 +26,11 @@ public class FileManagementController {
     @GetMapping(value = "/loadDocument/{fileName:.+}")
     public ResponseEntity<Resource> loadFile(@PathVariable(name = "fileName") String fileName) throws Exception {
         {
-            var fileNameSplit=fileName.split("[.]+");
-            var fileExtention=fileNameSplit[fileNameSplit.length-1];
-            Resource resource = documentManagementService.loadFileResource(fileName,null,null);
+            var fileNameSplit = fileName.split("[.]+");
+            var fileExtention = fileNameSplit[fileNameSplit.length - 1];
+            Resource resource = documentManagementService.loadFileResource(fileName, null, null);
             // String contentType=resource.getServletContext().
-        var contentType=fileExtention.equalsIgnoreCase("pdf")?"application/pdf":"image/jpg";
+            var contentType = fileExtention.equalsIgnoreCase("pdf") ? "application/pdf" : "image/jpg";
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))
                     .header(HttpHeaders.CONTENT_DISPOSITION
@@ -40,7 +40,7 @@ public class FileManagementController {
         }
     }
 
-//    @PostMapping("/")
+    //    @PostMapping("/")
 //    public String handleFileUpload(@RequestParam("file") MultipartFile file) {
 //
 //        //	storageService.store(file);
@@ -48,10 +48,10 @@ public class FileManagementController {
 //        return "redirect:/";
 //    }
     @PostMapping("/uploadDocument")
-    public ResponseEntity<ResponseStructure<String>> uploadFile(@RequestParam("file") MultipartFile file,@RequestParam("poId") Long poId) throws Exception {
+    public ResponseEntity<ResponseStructure<String>> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("poId") Long poId) throws Exception {
         {
             var response = new ResponseStructure<String>();
-            var resource = documentManagementService.uploadFile(file,poId);
+            var resource = documentManagementService.uploadFile(file, poId);
             response.setResult(resource);
             return ResponseEntity.ok(response);
 
@@ -63,7 +63,7 @@ public class FileManagementController {
         {
             var response = new ResponseStructure<List<String>>();
 
-            var resourceList= documentManagementService.loadAllDocuments().map(
+            var resourceList = documentManagementService.loadAllDocuments().map(
                             path -> MvcUriComponentsBuilder.fromMethodName(FileManagementController.class,
                                     "serveFile", path.getFileName().toString()).build().toUri().toString())
                     .collect(Collectors.toList());

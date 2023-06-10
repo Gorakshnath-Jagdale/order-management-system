@@ -6,8 +6,8 @@ import java.util.List;
 
 @Data
 public class FilteredReportRequest {
-            private String manufacturer;
-            private Long customer;
-            private Long mfgItem;
-            private List<String> status;
+    private String manufacturer;
+    private Long customer;
+    private Long mfgItem;
+    private List<String> status;
 }

@@ -5,7 +5,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 @Configuration
-public class WebConfig  extends WebSecurityConfigurerAdapter {
+public class WebConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
@@ -13,17 +13,16 @@ public class WebConfig  extends WebSecurityConfigurerAdapter {
                 .csrf()
                 .disable()
                 .authorizeRequests()
-              //  .antMatchers("*/api/user/**").authenticated()
-              .antMatchers("/api/**").authenticated() //
-              .antMatchers("/user/**").permitAll()
+                //  .antMatchers("*/api/user/**").authenticated()
+                .antMatchers("/api/**").authenticated() //
+                .antMatchers("/user/**").permitAll()
                 .and().cors().and().httpBasic() //
-;
+        ;
 
 //                .antMatchers("/login").permitAll()
 //                .antMatchers(HttpMethod.POST,"*/api/user/*").permitAll()
-              //  .antMatchers(HttpMethod.DELETE,"*/api/user/removeuser/*").permitAll()
+        //  .antMatchers(HttpMethod.DELETE,"*/api/user/removeuser/*").permitAll()
 //                .antMatchers(HttpMethod.GET,"*/api/user/*").permitAll()
 //                .antMatchers(HttpMethod.GET,"/exploreCourse").permitAll()
-                ;
     }
 }

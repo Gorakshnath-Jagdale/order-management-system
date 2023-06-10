@@ -1,6 +1,5 @@
 package com.oms.pojo;
 
-import com.oms.models.ProductDetailsEntity;
 import lombok.Data;
 
 import java.text.SimpleDateFormat;

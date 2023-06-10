@@ -3,8 +3,9 @@ package com.oms.dto;
 import lombok.Data;
 
 @Data
-public class Requester
-{
+public class Requester {
+    private int userId;
+
     public int getUserId() {
         return userId;
     }
@@ -12,7 +13,5 @@ public class Requester
     public void setUserId(int userId) {
         this.userId = userId;
     }
-
-    private int userId;
     //private int userLevel;
 }

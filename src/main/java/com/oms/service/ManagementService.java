@@ -52,9 +52,9 @@ public class ManagementService {
         }
     }
 
-    public Customer getCustomer(Long customerId,Requester requester) throws Exception {
-        var userAccessList=userManagementService.getTeamMemberList(requester.getUserId());
-        var customer = customerDetailsRepository.findByCreatedByInAndId(userAccessList,customerId);
+    public Customer getCustomer(Long customerId, Requester requester) throws Exception {
+        var userAccessList = userManagementService.getTeamMemberList(requester.getUserId());
+        var customer = customerDetailsRepository.findByCreatedByInAndId(userAccessList, customerId);
         if (customer.isPresent()) {
             return customerMapper.customerDetailsEntityToCustomer(customer.get());
         } else {
@@ -63,7 +63,7 @@ public class ManagementService {
     }
 
     public List<Customer> getCustomers(Requester requester) throws Exception {
-        var userAccessList=userManagementService.getTeamMemberList(requester.getUserId());
+        var userAccessList = userManagementService.getTeamMemberList(requester.getUserId());
         return customerMapper.customerDetailsEntityListToCustomerList(customerDetailsRepository.findDistinctByCreatedByInOrderByCustomerNameAsc(userAccessList));
     }
 

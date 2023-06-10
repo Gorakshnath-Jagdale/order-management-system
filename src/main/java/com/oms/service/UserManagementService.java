@@ -3,8 +3,6 @@ package com.oms.service;
 import com.oms.mapper.UserDetailsMapper;
 import com.oms.models.UserDetailsEntity;
 import com.oms.models.repository.UserDetailsRepository;
-import com.oms.models.repository.UserRoleManagerRepository;
-import com.oms.models.repository.UserRoleRepository;
 import com.oms.pojo.UserDetailsPojo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,7 @@ public class UserManagementService {
 
     private final UserDetailsRepository userDetailsRepository;
     private final UserDetailsMapper mapper;
-    private final UserRoleManagerRepository userRoleManagerRepository;
+
     public String addNewUserDetails(UserDetailsPojo user) {
 
         var newUser = mapper.getUserDetailsEntity(user);
@@ -66,7 +64,7 @@ public class UserManagementService {
         var userDetails = userDetailsRepository.findByLoginIdIgnoreCaseAndUserPass(user.getLoginId(), user.getUserPass());
 
         if (userDetails != null) {
-            if(!validateUser(userDetails.getId()))throw new Exception("Invalid user request!");
+            if (!validateUser(userDetails.getId())) throw new Exception("Invalid user request!");
             return mapper.getUserDetailsPojo(userDetails);
         } else {
             return null;
@@ -87,14 +85,14 @@ public class UserManagementService {
         Set<Integer> staffMembers = new HashSet<>();
 
         if (validateUser(userID)) {
-            var role = userRoleManagerRepository.findById(userID);
+            var role = userDetailsRepository.findById(userID);
             if (role.isPresent()) {
                 var roleDetail = role.get();
-                staffMembers = userDetailsRepository.findBySupervisorIdInAndActiveUser(Collections.singleton((int) userID),true);
+                staffMembers = userDetailsRepository.findBySupervisorIdInAndActiveUser(Collections.singleton((int) userID), true);
                 if (roleDetail.getUserRoleEntity().getRoleName().equalsIgnoreCase("MANAGER")) {
                     {
 
-                        staffMembers.addAll(userDetailsRepository.findBySupervisorIdInAndActiveUser(staffMembers,true));
+                        staffMembers.addAll(userDetailsRepository.findBySupervisorIdInAndActiveUser(staffMembers, true));
                     }
                 }
             } else {
@@ -109,21 +107,21 @@ public class UserManagementService {
 
     public Set<Integer> getMangerAndSupervisor(long userId) throws Exception {
         //if (validateUser(userId)) {
-            var user = userDetailsRepository.findById(userId);
-            if (user.isPresent()) {
-                var superVisor = user.get().getSupervisorId();
-                var manager = userDetailsRepository.getById((long) superVisor).getSupervisorId();
-                return new HashSet<>(Arrays.asList(superVisor, manager));
-            } else {
-                throw new Exception("Invalid user ID");
-            }
+        var user = userDetailsRepository.findById(userId);
+        if (user.isPresent()) {
+            var superVisor = user.get().getSupervisorId();
+            var manager = userDetailsRepository.getById((long) superVisor).getSupervisorId();
+            return new HashSet<>(Arrays.asList(superVisor, manager));
+        } else {
+            throw new Exception("Invalid user ID");
+        }
 //        } else {
 //            throw new Exception("Invalid user login Please check is user active!!");
 //        }
     }
 
     public boolean validateUser(long userId) {
-        if (userRoleManagerRepository.existsByUserDetailsEntity_IdAndUserDetailsEntity_ActiveUserAndUserRoleEntity_ActiveRoleAndEndDateGreaterThanEqualAndBeginDateLessThanEqualAllIgnoreCase(userId, TRUE, TRUE, new Date(), new Date())) {
+        if (userDetailsRepository.existsByIdIsAndActiveUserIsAndEndDateGreaterThanEqualAndBeginDateLessThanEqualAndUserRoleEntity_ActiveRoleTrue(userId, TRUE, new Date(), new Date())) {
             return TRUE;
         } else
             return FALSE;
