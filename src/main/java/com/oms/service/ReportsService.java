@@ -27,39 +27,40 @@ public class ReportsService {
     public List<ReportsFilterResponse> getFilteredOrderDetails(RequestStructure<ReportsFilterRequest> request) throws Exception {
         var requestBody = request.getRequest();
         Specification<POMasterEntity> test = Specification.where(null);
-        if (requestBody.getPoId() != null && requestBody.getPoId() != 0) {
-            test = test.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), requestBody.getPoId()));
+        if (requestBody.getPoNumber() != null && !Objects.equals(requestBody.getPoNumber(), "")) {
+            test = test.and((root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("poNumber"), "%"+requestBody.getPoNumber().trim()+"%"));
         }
         if (requestBody.getCustomerId() != null && requestBody.getCustomerId() != 0) {
             test = test.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("customerId"), requestBody.getCustomerId()));
         }
-        if (requestBody.getFromDate() != null && requestBody.getToDate() != null) {
-            if (requestBody.getFromDate().after(requestBody.getToDate()))
-                throw new Exception("From Date can not be greater that to date..");
-            test = test.and((r, q, c) -> c.between(r.get("poDate"), requestBody.getFromDate(), requestBody.getToDate()));
-        }
-        test = test.and((r, q, c) -> r.get("orderStatus").in(Constants.POStatus.getStatusList(requestBody.getStatus() < 5 ? requestBody.getStatus() : 1)));
+//        if (requestBody.getFromDate() != null && requestBody.getToDate() != null) {
+//            if (requestBody.getFromDate().after(requestBody.getToDate()))
+//                throw new Exception("From Date can not be greater that to date..");
+//            test = test.and((r, q, c) -> c.between(r.get("poDate"), requestBody.getFromDate(), requestBody.getToDate()));
+//        }
+        test = test.and((r, q, c) -> r.get("orderStatus").in(Constants.POStatus.getStatusList(requestBody.getStatus())));
         var userAccessList = userManagementService.getTeamMemberList(request.getRequester().getUserId());
         test = test.and((r, q, c) -> r.get("createdBy").in(userAccessList));
         var x = poMasterRepository.findAll(test);
 
-
-        if (requestBody.getStatus() == 5) {
-            x.forEach(po ->
-            {
-                po.getProductOrderManagerEntity().forEach(order -> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
-                        shipment.getSupplierDeliveryDate() == null).collect(Collectors.toList())));
-                //  entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
-            });
-        } else if (requestBody.getStatus() == 6) {
-            x.forEach(po ->
-                    {
-                        po.getProductOrderManagerEntity().forEach(order -> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
-                                shipment.getSupplierDeliveryDate() != null && (shipment.getInvoiceDate() == null || "".equals(shipment.getInvoiceNo()))).collect(Collectors.toList())));
-                    }
-                    //  entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
-            );
-        }
+//Dead code - start
+//        if (requestBody.getStatus() == 5) {
+//            x.forEach(po ->
+//            {
+//                po.getProductOrderManagerEntity().forEach(order -> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
+//                        shipment.getSupplierDeliveryDate() == null).collect(Collectors.toList())));
+//                //  entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
+//            });
+//        } else if (requestBody.getStatus() == 6) {
+//            x.forEach(po ->
+//                    {
+//                        po.getProductOrderManagerEntity().forEach(order -> order.setProductShipmentDetails(order.getProductShipmentDetails().stream().filter(shipment ->
+//                                shipment.getSupplierDeliveryDate() != null && (shipment.getInvoiceDate() == null || "".equals(shipment.getInvoiceNo()))).collect(Collectors.toList())));
+//                    }
+//                    //  entities2.add( poDetailsMapper.poDetailsPOJOMapper(po));}
+//            );
+//        }
+//Dead code - END
         // INITIALLY ADDING FILTER FOR USER-LEVEL
 
         if (requestBody.getManufacturer() != null && !requestBody.getManufacturer().equalsIgnoreCase("")) {
@@ -108,8 +109,8 @@ public class ReportsService {
     public List<ReportsFilterResponse> getFilteredOrderConsolidatedDetails(RequestStructure<ReportsFilterRequest> request) throws Exception {
         var requestBody = request.getRequest();
         Specification<POMasterEntity> test = Specification.where(null);
-        if (requestBody.getPoId() != null && requestBody.getPoId() != 0) {
-            test = test.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), requestBody.getPoId()));
+        if (requestBody.getPoNumber() != null && !Objects.equals(requestBody.getPoNumber(), "")) {
+            test = test.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), requestBody.getPoNumber().trim()));
         }
         if (requestBody.getCustomerId() != null && requestBody.getCustomerId() != 0) {
             test = test.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("customerId"), requestBody.getCustomerId()));

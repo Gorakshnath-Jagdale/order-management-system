@@ -9,7 +9,7 @@ import java.util.Date;
 @Data
 public class PODetailAsList {
     private Long id;
-    private String poDate;
+    private Date poDate;
     private String poNumber;
     private Long customerId;
     private String customerName;
@@ -26,7 +26,7 @@ public class PODetailAsList {
 
     public PODetailAsList(Long id, String poNumber, Date poDate, String orderStatus, double totalAmount, Long customerId, String customerName, Integer createdBy, Date createdDate, Date modifiedDate, String poDocumentName) {
         this.id = id;
-        this.poDate = getMyDate(poDate);
+        this.poDate = poDate;
         this.poNumber = poNumber;
         this.orderStatus = orderStatus;
         this.totalAmount = totalAmount;

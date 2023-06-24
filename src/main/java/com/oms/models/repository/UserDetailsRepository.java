@@ -19,8 +19,8 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, 
     @Query("select u.id from UserDetailsEntity u where u.supervisorId = ?1")
     List<Long> findBySupervisorId(String supervisorId);
 
-    @Query("select u.id from UserDetailsEntity u where u.supervisorId in ?1 and u.activeUser = ?2 ")
-    Set<Integer> findBySupervisorIdInAndActiveUser(Collection<Integer> supervisorIds, boolean isActive);
+    @Query("select u.id from UserDetailsEntity u where u.supervisorId = ?1 and u.activeUser = true")
+    Set<Integer> findBySupervisorIdAndActiveUserTrue(Integer supervisorId);
 
     boolean existsByIdIsAndActiveUserIsAndEndDateGreaterThanEqualAndBeginDateLessThanEqualAndUserRoleEntity_ActiveRoleTrue(Long id, boolean activeUser, Date endDate, Date beginDate);
 

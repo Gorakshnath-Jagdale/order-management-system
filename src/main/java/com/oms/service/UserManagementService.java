@@ -6,7 +6,6 @@ import com.oms.models.repository.UserDetailsRepository;
 import com.oms.pojo.UserDetailsPojo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -83,16 +82,17 @@ public class UserManagementService {
         //check if this userId belongs to manager or supervisor
         //IF Manager then get list of supervisors under him and then get list of staff under all supervisors
         Set<Integer> staffMembers = new HashSet<>();
-
+        Set<Integer> finalStaffList=new HashSet<>();
         if (validateUser(userID)) {
             var role = userDetailsRepository.findById(userID);
+
             if (role.isPresent()) {
                 var roleDetail = role.get();
-                staffMembers = userDetailsRepository.findBySupervisorIdInAndActiveUser(Collections.singleton((int) userID), true);
+
                 if (roleDetail.getUserRoleEntity().getRoleName().equalsIgnoreCase("MANAGER")) {
                     {
 
-                        staffMembers.addAll(userDetailsRepository.findBySupervisorIdInAndActiveUser(staffMembers, true));
+                        finalStaffList.addAll(userDetailsRepository.findBySupervisorIdAndActiveUserTrue((int) userID));
                     }
                 }
             } else {
@@ -101,8 +101,8 @@ public class UserManagementService {
         } else {
             throw new Exception("Invalid user request");
         }
-        staffMembers.add((int) userID);
-        return staffMembers;
+        finalStaffList.add((int) userID);
+        return finalStaffList;
     }
 
     public Set<Integer> getMangerAndSupervisor(long userId) throws Exception {
@@ -110,7 +110,7 @@ public class UserManagementService {
         var user = userDetailsRepository.findById(userId);
         if (user.isPresent()) {
             var superVisor = user.get().getSupervisorId();
-            var manager = userDetailsRepository.getById((long) superVisor).getSupervisorId();
+            var manager = userDetailsRepository.getById(Long.valueOf(superVisor)).getSupervisorId();
             return new HashSet<>(Arrays.asList(superVisor, manager));
         } else {
             throw new Exception("Invalid user ID");

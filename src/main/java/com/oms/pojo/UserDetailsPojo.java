@@ -20,7 +20,6 @@ public class UserDetailsPojo {
     private boolean activeUser;
     private Integer createdBy;
     private Integer modifiedBy;
-    //    private int userLevel;
     private Date createdDate;
 }
 

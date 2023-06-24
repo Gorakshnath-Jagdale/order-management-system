@@ -21,20 +21,23 @@ public final class Constants {
                 case 1:
                     list.add(ACTIVE_PO);//1
                     break;
-                case 2:
-                    list.add(COMPLETED_PO);//2
-                    break;
-                case 3:
-                    list.add(CANCEL_PO);//3
-                    break;
-                case 4://Only Active and Completed
-                    list.add(ACTIVE_PO);
-                    list.add(COMPLETED_PO);
-                    break;
+//                case 2:
+//                    list.add(COMPLETED_PO);//2
+//                    break;
+//                case 3:
+//                    list.add(CANCEL_PO);//3
+//                    break;
+//                case 4://Only Active and Completed
+//                    list.add(ACTIVE_PO);
+//                    list.add(COMPLETED_PO);
+//                    break;
                 case 0://ALL Nothing to skip
                     list.add(ACTIVE_PO);
                     list.add(COMPLETED_PO);
                     list.add(CANCEL_PO);
+                    break;
+                default:
+                    list.add(ACTIVE_PO);
                     break;
             }
             return list;

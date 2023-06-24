@@ -198,7 +198,7 @@ public class OrderManagementService {
         if (request.getFromDate() != null && request.getToDate() != null) {
             if (request.getFromDate().after(request.getToDate()))
                 throw new Exception("From Date can not be greater that to date..");
-            test = test.and((r, q, c) -> c.between(r.get("poDate"), request.getFromDate(), request.getToDate()));
+                test = test.and((r, q, c) -> c.between(r.get("poDate"), request.getFromDate(), request.getToDate()));
         }
         test = test.and((r, q, c) -> r.get("orderStatus").in(Constants.POStatus.getStatusList(request.getStatus() < 5 ? request.getStatus() : 1)));
         var userAccessList = userManagementService.getTeamMemberList(requester.getUserId());
@@ -221,7 +221,7 @@ public class OrderManagementService {
 
         x.forEach(p -> result.add(new PODetailAsList(p.getId(), p.getPoNumber(), p.getPoDate(), p.getOrderStatus(), p.getTotalAmount(), p.getCustomerId(), p.getCustomerDetailsEntity().getCustomerName(), p.getCreatedBy(), p.getCreatedDate(), p.getModifiedDate(), p.getPoDocumentName())));
         result.forEach(m -> m.setCreatedBy(managementService.getFirstNameAndLastName(Long.parseLong(m.getCreatedBy()))));
-        result.sort(Comparator.comparing(PODetailAsList::getCreatedDate));
+        result.sort(Comparator.comparing(PODetailAsList::getPoDate).reversed());
         return result;
     }
 
@@ -356,7 +356,7 @@ public class OrderManagementService {
                 var newSchedule = new ProductShipmentManagerEntity();
                 newSchedule.setScheduleQty(newScheduleQuantity);
                 newSchedule.setProductOrderId(x.getProductOrderId());
-
+                newSchedule.setSuppliedQty(0L);
                 newSchedule.setPendingQty(newScheduleQuantity);
                 newSchedule.setCustomerRequestedDate(x.getCustomerRequestedDate());
                 newSchedule.setCreatedBy(requestPayload.getRequester().getUserId());
@@ -371,9 +371,9 @@ public class OrderManagementService {
                 productShipmentManagerRepository.save(newSchedule);
                 request.setTotalDeliveryQuantity(request.getTotalDeliveryQuantity() - x.getScheduleQty());
             }
+
             productShipmentManagerRepository.save(x);
         });
-
         return null;
     }
 

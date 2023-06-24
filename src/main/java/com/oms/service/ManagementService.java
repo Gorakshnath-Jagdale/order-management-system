@@ -112,8 +112,11 @@ public class ManagementService {
         return productDetailsRepository.findAllManufacturer();
     }
 
+
+    //Currently returnning only user first name ....
     public String getFirstNameAndLastName(long userId) {
         var user = userDetailsRepository.getById(userId);
-        return user.getUserFirstName() + " " + user.getUserLastName();
+        return user.getUserFirstName();
+//        return user.getUserFirstName() + " " + user.getUserLastName();
     }
 }

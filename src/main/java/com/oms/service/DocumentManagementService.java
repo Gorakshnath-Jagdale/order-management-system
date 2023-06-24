@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.stream.Stream;
 
 @Service
@@ -41,8 +43,6 @@ public class DocumentManagementService {
 //       {
 //           throw new Exception("File not found");
 //       }
-
-        this.storageLocation = Paths.get("C:\\Users\\GORAKSHNATH\\Documents\\Custom Office Templates").toAbsolutePath().normalize();
         Path filePath = storageLocation.resolve(fileName).normalize();
         Resource resource = new UrlResource(filePath.toUri());
         if (resource.exists()) {
@@ -60,7 +60,6 @@ public class DocumentManagementService {
             if (fileName.contains("..")) {
                 throw new Exception("sorry! filename contains invalid path sequence " + fileName);
             }
-            // this.storageLocation = Paths.get("C:\\Users\\GORAKSHNATH\\Documents\\Custom Office Templates").toAbsolutePath().normalize();
             Path filePath = storageLocation.resolve(fileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             var getPO = poMasterRepository.getById(poId);
